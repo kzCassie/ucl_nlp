@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "exp.py", line 570, in <module>
+    train(args)
+  File "exp.py", line 47, in train
+    train_set = Dataset.from_bin_file(args.train_file)
+  File "/Users/cassiekz/Desktop/tranX/components/dataset.py", line 33, in from_bin_file
+    examples = pickle.load(open(file_path, 'rb'))
+FileNotFoundError: [Errno 2] No such file or directory: 'data/conala/pre_0.bin'

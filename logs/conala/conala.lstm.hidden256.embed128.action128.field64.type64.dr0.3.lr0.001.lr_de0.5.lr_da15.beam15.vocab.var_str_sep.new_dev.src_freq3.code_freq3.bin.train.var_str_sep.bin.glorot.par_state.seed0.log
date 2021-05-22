@@ -1,0 +1,9 @@
+default_parser
+<class 'model.parser.Parser'>
+use glorot initialization
+begin training, 2174 training examples, 200 dev examples
+vocab: Vocab(source Vocabulary[size=631]words, primitive Vocabulary[size=463]words, code Vocabulary[size=485]words)
+/Users/cassiekz/Desktop/tranX/model/nn_utils.py:24: UserWarning: masked_fill_ received a mask with dtype torch.uint8, this behavior is now deprecated,please use a mask with dtype torch.bool instead. (Triggered internally at  ../aten/src/ATen/native/TensorAdvancedIndexing.cpp:921.)
+  att_weight.data.masked_fill_(mask, -float('inf'))
+/Users/cassiekz/Desktop/tranX/model/pointer_net.py:46: UserWarning: masked_fill_ received a mask with dtype torch.uint8, this behavior is now deprecated,please use a mask with dtype torch.bool instead. (Triggered internally at  ../aten/src/ATen/native/TensorAdvancedIndexing.cpp:921.)
+  weights.data.masked_fill_(src_token_mask, -float('inf'))
