@@ -112,3 +112,6 @@ saved_models/
 
 # debug file
 debug.py
+
+# mac
+.DS_Store
