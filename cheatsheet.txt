@@ -1,0 +1,34 @@
+#########
+# vent
+#########
+python3 -m venv config/env/
+source config/env/bin/activate
+
+
+
+#########
+# Git
+#########
+git diff    View changed files.
+git log     View last 3 commit histories
+
+<https://www.nobledesktop.com/learn/git/git-branches>
+# create new branch
+git checkout -b my-branch-name
+
+# list all branches
+git branch -a
+
+# list modified files
+git diff --name-only --cached
+
+# discard both staged and unstaged changes
+git reset --hard
+
+
+
+#########
+# Vim
+#########
+:wq   quit with saving
+

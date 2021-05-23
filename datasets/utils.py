@@ -14,16 +14,7 @@ class ExampleProcessor(object):
 
 
 def get_example_processor_cls(dataset):
-    if dataset == 'django':
-        from datasets.django.example_processor import DjangoExampleProcessor
-        return DjangoExampleProcessor
-    elif dataset == 'atis':
-        from datasets.atis.example_processor import ATISExampleProcessor
-        return ATISExampleProcessor
-    elif dataset == 'geo':
-        from datasets.geo.example_processor import GeoQueryExampleProcessor
-        return GeoQueryExampleProcessor
-    elif dataset == 'conala':
+    if dataset == 'conala':
         from datasets.conala.example_processor import ConalaExampleProcessor
         return ConalaExampleProcessor
     else:
