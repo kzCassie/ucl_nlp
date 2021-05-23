@@ -7,5 +7,5 @@ class Parameters():
         return arg_parser
 
 train_param = Parameters()
-print(train_param.)
+print(train_param.seed)
 
