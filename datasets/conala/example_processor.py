@@ -13,7 +13,6 @@ class ConalaExampleProcessor(ExampleProcessor):
     def pre_process_utterance(self, utterance):
         canonical_intent, slot_map = canonicalize_intent(utterance)
         intent_tokens = tokenize_intent(canonical_intent)
-
         return intent_tokens, slot_map
 
     def post_process_hypothesis(self, hyp, meta_info, utterance=None):

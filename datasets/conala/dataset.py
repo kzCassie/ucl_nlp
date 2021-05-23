@@ -15,7 +15,7 @@ from components.vocab import Vocab, VocabEntry
 from datasets.conala.evaluator import ConalaEvaluator
 from datasets.conala.util import *
 
-assert astor.__version__ == '0.7.1'
+# assert astor.__version__ == '0.7.1'
 
 def preprocess_conala_dataset(train_file, test_file, grammar_file, src_freq=3, code_freq=3,
                               mined_data_file=None, api_data_file=None,
