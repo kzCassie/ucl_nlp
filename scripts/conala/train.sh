@@ -8,9 +8,9 @@ freq=${2:-3}
 #train_file="data/conala/pre_${mined_num}.bin"
 #dev_file="data/conala/dev.bin"
 
-train_file="data/conala/train.var_str_sep.bin"
-dev_file="data/conala/dev.var_str_sep.bin"
-vocab="data/conala/vocab.var_str_sep.new_dev.src_freq3.code_freq3.bin"
+train_file="data/conala/test.bin"
+dev_file="data/conala/dev.bin"
+vocab="data/conala/vocab.src_freq3.code_freq3.mined_10.bin"
 
 dropout=0.3
 hidden_size=256

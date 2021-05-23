@@ -1,9 +1,8 @@
-default_parser
-<class 'model.parser.Parser'>
-use glorot initialization
-begin training, 2174 training examples, 200 dev examples
-vocab: Vocab(source Vocabulary[size=631]words, primitive Vocabulary[size=463]words, code Vocabulary[size=485]words)
-/Users/cassiekz/Desktop/tranX/model/nn_utils.py:24: UserWarning: masked_fill_ received a mask with dtype torch.uint8, this behavior is now deprecated,please use a mask with dtype torch.bool instead. (Triggered internally at  ../aten/src/ATen/native/TensorAdvancedIndexing.cpp:921.)
-  att_weight.data.masked_fill_(mask, -float('inf'))
-/Users/cassiekz/Desktop/tranX/model/pointer_net.py:46: UserWarning: masked_fill_ received a mask with dtype torch.uint8, this behavior is now deprecated,please use a mask with dtype torch.bool instead. (Triggered internally at  ../aten/src/ATen/native/TensorAdvancedIndexing.cpp:921.)
-  weights.data.masked_fill_(src_token_mask, -float('inf'))
+Traceback (most recent call last):
+  File "exp.py", line 570, in <module>
+    train(args)
+  File "exp.py", line 47, in train
+    train_set = Dataset.from_bin_file(args.train_file)
+  File "/Users/cassiekz/Desktop/ucl_nlp/components/dataset.py", line 33, in from_bin_file
+    examples = pickle.load(open(file_path, 'rb'))
+FileNotFoundError: [Errno 2] No such file or directory: 'data/conala/train.var_str_sep.bin'

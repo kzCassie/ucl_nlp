@@ -25,7 +25,7 @@ if six.PY3:
 else:
     from asdl import PythonTransitionSystem
 
-import xgboost as xgb
+# import xgboost as xgb
 
 
 # shared across processes for multi-processed reranking
@@ -531,50 +531,50 @@ class GridSearchReranker(Reranker):
         self.parameter = best_param
 
 
-class XGBoostReranker(Reranker):
-    def __init__(self, features, transition_system=None):
-        super(XGBoostReranker, self).__init__(features, transition_system=transition_system)
-
-        params = {'objective': 'rank:ndcg', 'learning_rate': .1,
-                  'gamma': 5.0, 'min_child_weight': 0.1,
-                  'max_depth': 4, 'n_estimators': 5}
-
-        self.ranker = xgb.sklearn.XGBRanker(**params)
-
-    def get_feature_matrix(self, decode_results, train=False):
-        x, y, group = [], [], []
-
-        for hyps in decode_results:
-            if hyps:
-                for hyp in hyps:
-                    label = 1 if hyp.is_correct else 0
-                    feat_vec = np.array([hyp.score] + [v for v in hyp.rerank_feature_values.values()])
-                    x.append(feat_vec)
-                    y.append(label)
-                group.append(len(hyps))
-
-        x = np.stack(x)
-        y = np.array(y)
-
-        # if train:
-        #     self.scaler = preprocessing.StandardScaler().fit(x)
-        #     x = self.scaler.transform(x)
-        # else:
-        #     x = self.scaler.transform(x)
-
-        return x, y, group
-
-    def get_rerank_score(self, hyp, param):
-        x, y, group = self.get_feature_matrix([[hyp]])
-        y = self.ranker.predict(x)
-
-        return y[0]
-
-    def train(self, examples, decode_results, evaluator=CachedExactMatchEvaluator(), initial_performance=0.):
-        self.initialize_rerank_features(examples, decode_results)
-
-        train_x, train_y, group_train = self.get_feature_matrix(decode_results, train=True)
-        self.ranker.fit(train_x, train_y, group_train)
-
-        train_acc = self.compute_rerank_performance(examples, decode_results, fast_mode=True, evaluator=evaluator)
-        print('Dev acc: %f' % train_acc, file=sys.stderr)
+# class XGBoostReranker(Reranker):
+#     def __init__(self, features, transition_system=None):
+#         super(XGBoostReranker, self).__init__(features, transition_system=transition_system)
+#
+#         params = {'objective': 'rank:ndcg', 'learning_rate': .1,
+#                   'gamma': 5.0, 'min_child_weight': 0.1,
+#                   'max_depth': 4, 'n_estimators': 5}
+#
+#         self.ranker = xgb.sklearn.XGBRanker(**params)
+#
+#     def get_feature_matrix(self, decode_results, train=False):
+#         x, y, group = [], [], []
+#
+#         for hyps in decode_results:
+#             if hyps:
+#                 for hyp in hyps:
+#                     label = 1 if hyp.is_correct else 0
+#                     feat_vec = np.array([hyp.score] + [v for v in hyp.rerank_feature_values.values()])
+#                     x.append(feat_vec)
+#                     y.append(label)
+#                 group.append(len(hyps))
+#
+#         x = np.stack(x)
+#         y = np.array(y)
+#
+#         # if train:
+#         #     self.scaler = preprocessing.StandardScaler().fit(x)
+#         #     x = self.scaler.transform(x)
+#         # else:
+#         #     x = self.scaler.transform(x)
+#
+#         return x, y, group
+#
+#     def get_rerank_score(self, hyp, param):
+#         x, y, group = self.get_feature_matrix([[hyp]])
+#         y = self.ranker.predict(x)
+#
+#         return y[0]
+#
+#     def train(self, examples, decode_results, evaluator=CachedExactMatchEvaluator(), initial_performance=0.):
+#         self.initialize_rerank_features(examples, decode_results)
+#
+#         train_x, train_y, group_train = self.get_feature_matrix(decode_results, train=True)
+#         self.ranker.fit(train_x, train_y, group_train)
+#
+#         train_acc = self.compute_rerank_performance(examples, decode_results, fast_mode=True, evaluator=evaluator)
+#         print('Dev acc: %f' % train_acc, file=sys.stderr)

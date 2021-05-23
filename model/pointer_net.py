@@ -41,6 +41,7 @@ class PointerNet(nn.Module):
         weights = weights.permute(1, 0, 2)
 
         if src_token_mask is not None:
+            src_token_mask = src_token_mask.to(torch.bool)
             # (tgt_action_num, batch_size, src_sent_len)
             src_token_mask = src_token_mask.unsqueeze(0).expand_as(weights)
             weights.data.masked_fill_(src_token_mask, -float('inf'))

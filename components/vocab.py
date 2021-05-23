@@ -33,6 +33,8 @@ class VocabEntry(object):
         return 'Vocabulary[size=%d]' % len(self)
 
     def id2word(self, wid):
+        print('id2word_len',len(self.id2word_))
+        print('id2word_len',len(self.id2word_))
         return self.id2word_[wid]
 
     def add(self, word):
