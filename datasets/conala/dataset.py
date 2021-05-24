@@ -107,7 +107,7 @@ def preprocess_dataset(file_path, transition_system, name='train', firstk=None):
         dataset = dataset[:firstk]
     examples = []
     evaluator = ConalaEvaluator(transition_system)
-    f = open(file_path + '/.debug', 'w')
+    f = open(file_path + '.debug', 'w')
     skipped_list = []
     for i, example_json in enumerate(dataset):
         try:
