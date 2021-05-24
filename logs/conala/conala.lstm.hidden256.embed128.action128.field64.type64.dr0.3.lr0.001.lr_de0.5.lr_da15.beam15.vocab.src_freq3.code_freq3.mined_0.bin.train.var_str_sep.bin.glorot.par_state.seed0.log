@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "exp.py", line 570, in <module>
-    train(args)
-  File "exp.py", line 53, in train
-    vocab = pickle.load(open(args.vocab, 'rb'))
-FileNotFoundError: [Errno 2] No such file or directory: 'data/conala/vocab.src_freq3.code_freq3.mined_0.bin'

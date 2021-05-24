@@ -1,0 +1,20 @@
+Setup guide: 以下是我的环境配置步骤供参考。写得比较细，其实不复杂。具体操作见谷歌。（顺利的话大概小半天能搞定）
+
+- local repo setup
+	- fork我的repo到你们自己的账号。我的repo：https://github.com/kzCassie/ucl_nlp
+	- git clone 你们fork的repo。新建branch。每次修改都update你们自己的repo。修改比较完善了再给我发pull request <pull request具体怎么操作我还要再研究下>.
+- virtual environment
+	- activate python virtual environment。我一般会把venv直接存在项目里。如果存到项目里，建议你们存到nlp_ucl/config/env文件夹,和我保持一致。
+	- *激活venv后再pip install -r requirements
+- bash pull_data.sh
+	- windows如果wget还是装不上，查查怎么在windows上跑linux command，比如说装虚拟机
+	- 如果还是不行，我看看我这边code能不能modify一下，比如pull_data.sh改成使用windows的下载命令。<次优解，因为后面同步可能会麻烦一点>
+- pyCharm 强烈建议使用IDE，setup之后事半功倍
+	- 专业版可以直接编辑jupyter notebook。使用ucl账号注册登陆有一年免费使用。社区版没有这个功能。
+	- 用pyCharm打开clone下来的项目，将Python interpreter改成你的虚拟环境里的python的路径。这样打开项目后会自动使用虚拟环境里的python，不用每次都activate。
+
+
+其他我觉得能提高效率的工具：
+- 关于git：了解一下.gitignore
+- 关于pyCharm: 了解界面下方Python Console和terminal的区别。debug很有用。
+- ucl_nlp/cheatsheet.txt 存了一些我觉得有用的命令。但是其实谷歌更快。

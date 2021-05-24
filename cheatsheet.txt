@@ -26,6 +26,12 @@ git diff --name-only --cached
 git reset --hard
 
 
+#########
+# Pip
+#########
+pip install -r requirements.txt
+pip freeze -l > requirements.txt
+
 
 #########
 # Vim
