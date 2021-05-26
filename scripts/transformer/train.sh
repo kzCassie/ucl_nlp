@@ -60,4 +60,4 @@ python -u exp.py \
     --log_every 50 \
     --save_to saved_models/conala/${model_name} 2>&1 | tee logs/conala/${model_name}.log
 
-. scripts/conala/test.sh saved_models/conala/${model_name}.bin ${mined_num} 2>&1 | tee -a logs/conala/${model_name}.log
+#. scripts/conala/test.sh saved_models/conala/${model_name}.bin ${mined_num} 2>&1 | tee -a logs/conala/${model_name}.log
