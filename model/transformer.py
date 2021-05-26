@@ -27,8 +27,8 @@ from model.nn_utils import LabelSmoothing
 from model.pointer_net import PointerNet
 
 
-@Registrable.register('default_parser')
-class Parser(nn.Module):
+@Registrable.register('transformer_parser')
+class TransformerParser(nn.Module):
     """Implementation of a semantic parser
 
     The parser translates a natural language utterance into an AST defined under
@@ -733,7 +733,7 @@ class Parser(nn.Module):
                         else:
                             token = primitive_vocab.id2word[primitive_vocab.unk_id]
                     else:
-                        token = primitive_vocab.id2word(token_id.item())
+                        token = primitive_vocab.id2word[token_id.item()]
 
                     action = GenTokenAction(token)
 
