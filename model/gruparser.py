@@ -27,15 +27,15 @@ from model.nn_utils import LabelSmoothing
 from model.pointer_net import PointerNet
 
 
-@Registrable.register('GRU_parser')
-class Parser(nn.Module):
+@Registrable.register('gru_parser')
+class GRUParser(nn.Module):
     """Implementation of a semantic parser
 
     The parser translates a natural language utterance into an AST defined under
     the ASDL specification, using the transition system described in https://arxiv.org/abs/1810.02720
     """
     def __init__(self, args, vocab, transition_system):
-        super(Parser, self).__init__()
+        super(GRUParser, self).__init__()
 
         self.args = args
         self.vocab = vocab

@@ -19,6 +19,8 @@ from components.standalone_parser import StandaloneParser
 from model import nn_utils
 from model.paraphrase import ParaphraseIdentificationModel
 from model.parser import Parser
+from model.gruparser import GRUParser
+from model.transformer import TransformerParser
 from model.reconstruction_model import Reconstructor
 from model.utils import GloveHelper
 

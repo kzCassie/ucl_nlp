@@ -35,7 +35,7 @@ class TransformerParser(nn.Module):
     the ASDL specification, using the transition system described in https://arxiv.org/abs/1810.02720
     """
     def __init__(self, args, vocab, transition_system):
-        super(Parser, self).__init__()
+        super(TransformerParser, self).__init__()
 
         self.args = args
         self.vocab = vocab
@@ -189,6 +189,7 @@ class TransformerParser(nn.Module):
         src_encodings, _ = pad_packed_sequence(src_encodings)
         # src_encodings: (batch_size, tgt_query_len, hidden_size)
         src_encodings = src_encodings.permute(1, 0, 2)
+        assert(src_encodings.shape[2] == self.args.hidden_size)
 
         # (batch_size, hidden_size * 2)
         last_state = torch.cat([last_state[0], last_state[1]], 1)

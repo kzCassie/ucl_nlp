@@ -5,8 +5,9 @@ mined_num=$2
 test_file="data/conala/${mined_num}/test.bin"
 
 python exp.py \
+    --cuda \
     --mode test \
-    --load_model ${test_model} \
+    --load_model $1 \
     --beam_size 15 \
     --test_file ${test_file} \
     --evaluator conala_evaluator \

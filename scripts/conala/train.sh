@@ -6,7 +6,7 @@ parser="default_parser"
 seed=0
 mined_num=$1
 freq=${2:-3}
-train_file="data/conala/${mined_num}/train.all_200.bin"
+train_file="data/conala/${mined_num}/train.all_${mined_num}.bin"
 dev_file="data/conala/${mined_num}/dev.bin"
 vocab="data/conala/${mined_num}/vocab.src_freq3.code_freq3.mined_${mined_num}.bin"
 dropout=0.3
@@ -29,8 +29,9 @@ mkdir -p logs/conala
 echo commit hash: `git rev-parse HEAD` > logs/conala/${model_name}.log
 
 python -u exp.py \
-    --seed ${seed} \
+    --parser ${parser} \
     --cuda \
+    --seed ${seed} \
     --mode train \
     --batch_size ${batch_size} \
     --evaluator conala_evaluator \
@@ -59,4 +60,4 @@ python -u exp.py \
     --log_every 50 \
     --save_to saved_models/conala/${model_name} 2>&1 | tee logs/conala/${model_name}.log
 
-. scripts/conala/test.sh saved_models/conala/${model_name}.bin 2>&1 | tee -a logs/conala/${model_name}.log
+. scripts/conala/test.sh saved_models/conala/${model_name}.bin ${mined_num} 2>&1 | tee -a logs/conala/${model_name}.log

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-test_file="data/conala/test.bin"
+test_model=$1
+mined_num=$2
+test_file="data/conala/${mined_num}/test.bin"
 
 python exp.py \
     --cuda \
