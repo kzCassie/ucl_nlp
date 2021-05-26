@@ -1,6 +1,6 @@
 #!/bin/bash
 
-test_file="data/conala/test.var_str_sep.bin"
+test_file="data/conala/test.bin"
 
 python exp.py \
     --cuda \

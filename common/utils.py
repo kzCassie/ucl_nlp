@@ -28,7 +28,7 @@ def init_arg_parser():
     arg_parser.add_argument('--seed', default=0, type=int, help='Random seed')
     arg_parser.add_argument('--cuda', action='store_true', default=False, help='Use gpu')
     arg_parser.add_argument('--lang', choices=['python', 'lambda_dcs', 'wikisql', 'prolog', 'python3'], default='python',
-                            help='[Deprecated] language to parse. Deprecated, use --transition_system and --parser instead')
+                            help='[Deprecno_input_feedated] language to parse. Deprecated, use --transition_system and --parser instead')
     arg_parser.add_argument('--asdl_file', type=str, help='Path to ASDL grammar specification')
     arg_parser.add_argument('--mode', choices=['train', 'test', 'interactive',
                                                'train_paraphrase_identifier', 'train_reconstructor','rerank'], required=True, help='Run mode')

@@ -733,7 +733,7 @@ class Parser(nn.Module):
                         else:
                             token = primitive_vocab.id2word[primitive_vocab.unk_id]
                     else:
-                        token = primitive_vocab.id2word(token_id.item())
+                        token = primitive_vocab.id2word[token_id.item()]
 
                     action = GenTokenAction(token)
 

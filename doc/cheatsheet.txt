@@ -29,6 +29,10 @@ git reset --hard
 #########
 # Pip
 #########
+python3 -m venv config/env
+source config/env/bin/activate
+source deactivate
+
 pip install -r requirements.txt
 pip freeze -l > requirements.txt
 
