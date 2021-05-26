@@ -1,10 +1,12 @@
 #!/bin/bash
 set -e
 
+parser="default_parser"
+
 seed=0
 mined_num=$1
 freq=${2:-3}
-train_file="data/conala/${mined_num}/test.bin"
+train_file="data/conala/${mined_num}/train.all_200.bin"
 dev_file="data/conala/${mined_num}/dev.bin"
 vocab="data/conala/${mined_num}/vocab.src_freq3.code_freq3.mined_${mined_num}.bin"
 dropout=0.3
