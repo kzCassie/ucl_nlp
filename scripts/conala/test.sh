@@ -3,8 +3,10 @@
 test_model=$1
 mined_num=$2
 test_file="data/conala/${mined_num}/test.bin"
+parser="default_parser"
 
 python exp.py \
+    --parser ${parser} \
     --cuda \
     --mode test \
     --load_model $1 \

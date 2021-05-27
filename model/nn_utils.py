@@ -25,7 +25,7 @@ def dot_prod_attention(h_t, src_encoding, src_encoding_att_linear, mask=None):
         att_weight.data.masked_fill_(mask, -float('inf'))
     att_weight = F.softmax(att_weight, dim=-1)
 
-    att_view = (att_weight.size(0), 1, att_weight.size(1))
+    att_view = (att_weight.size()[0], 1, att_weight.size()[1])
     # (batch_size, hidden_size)
     ctx_vec = torch.bmm(att_weight.view(*att_view), src_encoding).squeeze(1)
 
