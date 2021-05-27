@@ -1,0 +1,466 @@
+signal . SIGUSR1 . signal . SIGUSR1 ( )
+4a4b4c
+my List . my List ( )
+Python . Python ( )
+utf - 8
+[ ` a ` , ` b ` , ` c ` ] . [ ` a ` , ` b ` , ` c ` ] ( )
+s1 . s1 ( )
+client . client ( )
+when . when ( )
+input String . split ( input String ( ) )
+split . split ( )
+b . b ( )
+Entry . Entry ( )
+sum . sum ( )
+always
+l . l ( )
+htmlfilename . htm
+time
+my_string . my_string ( )
+123 , 456 . 908 . 123 , 456 . 908 ( )
+pythonpath
+split . split ( )
+Output . txt
+http : / / www . example . com / songs / mp3 . mp3 . http : / / www . example . com / songs / mp3 . mp3 ( )
+http : / / www . example . com / . http : / / www . example . com / ( )
+url . url ( )
+parser
+d . d ( )
+split_df . split_df ( )
+s . s ( )
+keyboard - input . read ( )
+mylist . mylist ( )
+P . P ( )
+( 3 , 3 , 3 ) . ( 3 , 3 , 3 ) ( )
+content ( )
+x . x ( )
+L . sum ( L )
+470FC614 . 470FC614 ( )
+my_dict . my_dict ( )
+l . l ( )
+my List . my List ( )
+( 1 . 1 ) ( )
+lamp , bag , mirror . bag , ( )
+s ( )
+s
+% Y - % m - % d % H : % M : % S
+date
+column . column ( )
+array . array ( )
+encode . encode ( )
+dicts . dicts ( )
+dicts . dicts ( )
+view
+mylist . mylist ( )
+__file__ . __file__ ( )
+subdir . subdir ( )
+list_of_menuitems . list_of_menuitems ( )
+b . b ( )
+append . append ( )
+df . df ( )
+x . x ( )
+- . - ( )
+ftp
+XYZ
+[ 1 , 5 , 2 ]
+l . l ( )
+. . . ( )
+source . source ( )
+random . random ( )
+microseconds
+SELECT * FROM Schedule WHERE station = $ 1
+f
+tab . print ( tab ( ) )
+df . df ( )
+self . goals . self . goals ( )
+goals
+( { 0 . goals } goals , $ { 0 . penalties } ) . ( { 0 . goals } goals , $ { 0 . penalties } ) ( )
+L . L ( )
+L . L ( )
+L . L ( )
+lines . lines ( )
+N
+text . text ( )
+
+C : \ Some Dir \ Acro Tray . exe
+split . split ( )
+line ( )
+filename . filename ( )
+datetime . datetime ( % Y - % m - % d % H : % M : % S . % f ( ) )
+thelist
+text . text ( )
+text ( )
+x
+x
+mylist . mylist ( )
+lst . lst ( )
+lst . lst ( )
+someclass
+df1 . df1 ( )
+str1
+split . split ( )
+directory . directory ( )
+path . path ( )
+path . path ( )
+path . path ( )
+text
+
+aas30dsa20 . aas30dsa20 ( )
+soup ( )
+records . records ( )
+b
+A . A ( )
+filepath . filepath ( )
+l . l ( )
+l . l ( )
+l . l ( )
+l . l ( )
+l . l ( )
+srcfile . srcfile ( )
+x . x ( )
+x . x ( )
+x . x ( )
+curser
+df . df ( )
+d . d ( )
+timestamp
+[ ` annoying ` ]
+x ( )
+df . df ( )
+t . t ( )
+t . t ( )
+level1 . level1 ( )
+dataobject . dataobject ( )
+Bool Col . Bool Col ( )
+df ( )
+df . df ( )
+owd . owd ( )
+testfield . testfield ( )
+\ x89 \ n
+raw_string . raw_string ( )
+raw_byte_string . raw_byte_string ( )
+s . s ( )
+np . random . randn ( 100 )
+circles
+main - content . main - content ( )
+ball . ball ( )
+df . df ( )
+index . index ( )
+b
+a . a ( )
+a
+list_of_ints . list_of_ints ( )
+password
+abcd } def }
+[ 1 , 2 , 3 ] . [ 1 , 2 , 3 ] ( )
+d
+hemanth . txt . hemanth . txt ( )
+x . x ( )
+[ [ ` A ` , ` B ` , ` C ` ] , [ ` D ` , ` E ` , ` F ` ] , [ ` G ` , ` H ` , ` I ` ] ] . [ [ ` A ` , ` B ` , ` C ` ] , [ ` D ` , ` E ` , ` F ` ] , [ ` G ` , ` H ` , ` I ` ] ] ( )
+df . df ( )
+word . word ( )
+word . word ( )
+my String . my String ( )
+my String . my String ( )
+mystring . mystring ( )
+2016 - 01 - 01
+matrix . matrix ( )
+replace . replace ( )
+mydir / myfile . txt ( mydir / myfile . txt . mydir / myfile . txt ( ) )
+my_string . my_string ( )
+filename . filename ( )
+l . i ( )
+/
+r
+df
+B
+string . string ( )
+determine . determine ( )
+sqlite
+user_input . user_input ( )
+user . user ( )
+
+Send
+Send In Mail
+Send In Mail
+i . i ( )
+sorting . sorting ( )
+outfile
+s . s ( )
+True . True ( )
+t . t ( )
+source_list . source_list ( )
+abracadabra . abracadabra ( )
+a . a ( )
+a . a ( )
+soup . soup ( )
+l . l ( )
+l . l ( )
+driver
+teststr . teststr ( )
+df
+o . o ( )
+d . d ( )
+sort . sort ( )
+1 . 1 ( )
+strings
+T1 . T1 ( )
+. / test . sh . . / test . sh ( )
+notepad . notepad ( )
+l1 . l1 ( )
+data to be encoded . data to be encoded ( )
+ascii . ascii ( )
+text . txt
+my_str . my_str ( )
+LD . LD ( )
+sum . sum ( )
+ustr_0
+mystring . mystring ( )
+text . text ( )
+A . A ( )
+a ( )
+/ pathto / Myr Script . r . / pathto / Myr Script . r ( )
+csv
+df . df ( )
+% Y - % m - % d % H : % M : % S
+do . do ( )
+1
+list
+words . words ( )
+result ( )
+File . txt . File . txt ( )
+a . a ( )
+path / to / FILE_NAME . ext
+
+dict1 . dict1 ( )
+dict1 . dict1 ( )
+email . sf ( )
+list . list ( )
+print . print ( )
+encode . encode ( )
+image . image ( )
+s . s ( )
+1 / 3 * 100 . 1 / 3 * 100 ( )
+mylist . mylist ( )
+l . l ( )
+id
+l1
+soup . soup ( )
+df . df ( )
+s . s ( )
+L . L ( )
+file . file ( )
+testlist . testlist ( )
+testlist . testlist ( )
+testlist . testlist ( )
+testlist . testlist ( )
+testlist . testlist ( )
+testlist . element ( )
+testlist . element ( )
+lis . lis ( )
+lis
+( 1 . 1 ) ( )
+L . L ( )
+list5 . list5 ( )
+perform
+list . list ( ` ` )
+oldlist . oldlist ( )
+yourfile . txt
+obj ( )
+( ( ` aa ` , ) , ( ` bb ` , ) , ( ` cc ` , ) ) . ( ( ` aa ` , ) , ( ` bb ` , ) , ( ` cc ` , ) ) ( )
+( ( ` aa ` , ) , ( ` bb ` , ) , ( ` cc ` , ) ) . ( ( ` aa ` , ) , ( ` bb ` , ) , ( ` cc ` , ) ) ( )
+[ ( ` a ` , 1 ) , ( ` b ` , 2 ) , ( ` c ` , 3 ) , ( ` d ` , 4 ) ] . [ ( ` a ` , 1 ) , ( ` b ` , 2 ) , ( ` c ` , 3 ) , ( ` d ` , 4 ) ] ( )
+[ ( ` a ` , 1 ) , ( ` b ` , 2 ) , ( ` c ` , 3 ) , ( ` d ` , 4 ) ] . [ ( ` a ` , 1 ) , ( ` b ` , 2 ) , ( ` c ` , 3 ) , ( ` d ` , 4 ) ] ( )
+original . original ( )
+original . original ( )
+[ ( ` a ` , 1 ) , ( ` b ` , 2 ) , ( ` c ` , 3 ) , ( ` d ` , 4 ) , ( ` e ` , ) ] . [ ( ` a ` , 1 ) , ( ` b ` , 2 ) , ( ` c ` , 3 ) , ( ` d ` , 4 ) , ( ` e ` , ) ] ( )
+Decimal ( ` 3 . 9 ` ) . Decimal ( ` 3 . 9 ` ) ( ` ` ) . Decimal ( ` 3 . 9 ` ) ( )
+d . d ( )
+data . data ( )
+data . data ( )
+data . data ( )
+matrix . matrix ( )
+answer . answer ( )
+ip . ip ( ) . ip ( )
+df . df ( )
+myfile . myfile ( )
+lst . lst ( )
+mappable . mappable ( )
+df ( )
+split . split ( )
+( 1 , 2 , 3 )
+time
+list1
+list1 . list2 ( )
+data . data ( )
+example_str ( )
+example_str . example_str ( )
+( zyx ) bc
+( zyx ) bc . \ ( ( . * ? ) \ ) | ( \ w ) ( )
+( zyx ) bc
+elements . elements ( )
+arguments
+mykeys
+[ ( ` Name ` , ` Joe ` ) , ( ` Age ` , 22 ) ] . [ ( ` Name ` , ` Joe ` ) , ( ` Age ` , 22 ) ] ( )
+data . data ( )
+s ( )
+split . split ( )
+my Dictionary . my Dictionary ( )
+my List
+obj . obj ( )
+o . o ( )
+o . o ( )
+o . o ( )
+obj_to_test . obj_to_test ( )
+list1 . list1 ( )
+mylog . mylog ( )
+a . a ( )
+mylog . mylog ( )
+a . a ( )
+SECRET_KEY . SECRET_KEY ( )
+out - 2
+stocks_list ( )
+ax . ax ( )
+s . s ( )
+script
+str . str ( )
+input . input ( )
+input . input ( )
+headers
+bytes_ . bytes_ ( )
+lst . lst ( )
+x ( )
+3
+ax . ax ( )
+my_path . my_path ( )
+yourdict . yourdict ( )
+yourdictfile . yourdictfile ( )
+id . id ( )
+split . split ( )
+data . data ( )
+sum . sum ( )
+c : \ Program Files \ VMware \ VMware Server \ vmware - cmd . bat . c : \ Program Files \ VMware \ VMware Server \ vmware - cmd . bat ( )
+q . q ( )
+color . group ( )
+data ( )
+my_list . my_list ( )
+l . l ( )
+s . s ( )
+my_tuple . my_tuple ( )
+my_string . my_string ( )
+\ a . \ a ( )
+a
+/ folder_name . / folder_name ( )
+weekday . weekday ( )
+a
+a . a ( )
+a . a ( )
+a . a ( )
+google . com
+401
+wherever . wherever ( )
+
+c2
+list
+list
+Arial . Arial ( )
+datetime
+element . element ( )
+bob . bob ( )
+sudo apt - get update
+my_dict
+declare . declare ( )
+my_list ( )
+my List . my List ( )
+actual
+df . df ( )
+df . df ( )
+[ 1 , 2 , 3 ] . [ 1 , 2 , 3 ] ( )
+i . i ( )
+v . v ( )
+v . v ( )
+v . v ( )
+v . v ( )
+variable_name . variable_name ( )
+
+word . word ( )
+list . list ( )
+y . y ( )
+data ( )
+it is icy
+it is icy
+it is icy
+
+df . df ( )
+my List . my List ( )
+intstringlist . intstringlist ( )
+list . list ( )
+print . print ( ` ` )
+int
+. txt
+. txt
+. txt
+192 . 168 . x . x ( 192 . 168 . x . x . 192 . 168 . x . x ( ) )
+192 . 168 . x . x ( 192 . 168 . x . x . 192 . 168 . x . x ( ) )
+192 . 168 . x . x ( 192 . 168 . x . x . 192 . 168 . x . x ( ) )
+x . sum ( x )
+line1
+data . data ( )
+print . print ( ` ` )
+s . s ( )
+x . x ( )
+x . x ( )
+arr ( )
+df . df ( )
+your_string . your_string ( )
+yyyymmdd
+The big brown fox is brown
+request . body
+url . url ( )
+text . text ( )
+text . text ( )
+line . line ( )
+s
+list_of_strings . list_of_strings ( )
+lst . lst ( )
+lst
+list_to_be_sorted . list_to_be_sorted ( )
+sort . sort ( ` ` )
+sort . sort ( ` ` )
+trans
+[ ` A ` , ` B ` , ` C ` , ` D ` ] . [ ` A ` , ` B ` , ` C ` , ` D ` ] ( )
+url
+sents . sents ( )
+filter
+time
+datetime . datetime ( )
+_suff . _suff ( )
+module . module ( )
+number . number ( )
+numlist ( )
+unescaped . unescaped ( )
+
+new File Bytes . new File Bytes ( )
+string ( )
+dict . dict ( )
+f ( )
+myfile ( )
+somefile . txt
+s . s ( )
+Authorized Email ( )
+text . text ( )
+text
+script . ps1 . script . ps1 ( )
+b . b ( )
+cf . cf ( )
+datetime . datetime ( )
+lst . lst ( )
+a . a ( )
+C : \
+x . x ( )
+s . s ( )
+t
+mystring . mystring ( )
+path . path ( )
+data . sum ( data )
+a . a ( )

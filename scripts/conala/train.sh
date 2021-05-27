@@ -58,6 +58,6 @@ python -u exp.py \
     --max_epoch ${max_epoch} \
     --beam_size ${beam_size} \
     --log_every 50 \
-    --save_to saved_models/conala/${model_name} 2>&1 | tee logs/conala/${model_name}.log
+    --save_to saved_models/conala/${model_name} 2>&1 | tee "logs/conala/${model_name}.log"
 
 . scripts/conala/test.sh saved_models/conala/${model_name}.bin ${mined_num} 2>&1 | tee -a logs/conala/${model_name}.log

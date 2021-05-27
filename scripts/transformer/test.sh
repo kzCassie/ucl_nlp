@@ -2,8 +2,8 @@
 
 test_model=$1
 mined_num=$2
+parser=$3
 test_file="data/conala/${mined_num}/test.bin"
-parser="transformer_parser"
 
 python exp.py \
     --parser ${parser} \
