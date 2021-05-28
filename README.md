@@ -198,5 +198,3 @@ The Zephyr Abstract Syntax Description Language.
 Daniel C. Wang, Andrew W. Appel, Jeff L. Korn, and Christopher S. Serra.
 in Proceedings of the Conference on Domain-Specific Languages, 1997
 ```
-
-We also thank [Li Dong](http://homepages.inf.ed.ac.uk/s1478528/) for all the helpful discussions and sharing the data-preprocessing code for ATIS and GEO used in our Web Demo.
