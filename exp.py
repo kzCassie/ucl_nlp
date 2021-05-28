@@ -20,7 +20,7 @@ from model import nn_utils
 from model.paraphrase import ParaphraseIdentificationModel
 from model.parser import Parser
 from model.gruparser import GRUParser
-# from model.transformer import TransformerParser
+from model.transformer import TransformerParser
 from model.reconstruction_model import Reconstructor
 from model.utils import GloveHelper
 
@@ -567,7 +567,7 @@ def train_reranker_and_test(args):
 if __name__ == '__main__':
     arg_parser = init_arg_parser()
     args = init_config()
-    print(args, file=sys.stderr)
+    # print(args, file=sys.stderr)
     if args.mode == 'train':
         train(args)
     # elif args.mode in ('train_reconstructor', 'train_paraphrase_identifier'):

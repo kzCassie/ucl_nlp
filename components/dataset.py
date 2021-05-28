@@ -67,6 +67,7 @@ class Example(object):
 class Batch(object):
     def __init__(self, examples, grammar, vocab, copy=True, cuda=False):
         self.examples = examples
+        self.tgt_action_len = [len(e.tgt_actions) for e in self.examples]
         self.max_action_num = max(len(e.tgt_actions) for e in self.examples)
 
         self.src_sents = [e.src_sent for e in self.examples]
@@ -213,6 +214,11 @@ class Batch(object):
     @cached_property
     def src_token_mask(self):
         return nn_utils.length_array_to_mask_tensor(self.src_sents_len,
+                                                    cuda=self.cuda)
+
+    @cached_property
+    def tgt_action_mask(self):
+        return nn_utils.length_array_to_mask_tensor(self.tgt_action_len,
                                                     cuda=self.cuda)
 
     @cached_property

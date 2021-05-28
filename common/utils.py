@@ -159,6 +159,13 @@ def init_arg_parser():
     #### dataset specific config ####
     arg_parser.add_argument('--sql_db_file', default=None, type=str, help='path to WikiSQL database file for evaluation (SQLite)')
 
+    #### dataset specific config ####
+    arg_parser.add_argument('--enc_nhead', default=8, type=int, help='number of attention heads of the transformer encoder')
+    arg_parser.add_argument('--dec_nhead', default=8, type=int, help='number of attention heads of the transformer decoder')
+    arg_parser.add_argument('--enc_nlayer', default=6, type=int, help='number of layers of the transformer encoder')
+    arg_parser.add_argument('--dec_nlayer', default=6, type=int, help='number of layers of the transformer dencoder')
+
+
     return arg_parser
 
 

@@ -43,7 +43,7 @@ def length_array_to_mask_tensor(length_array, cuda=False, valid_entry_has_mask_o
         else:
             mask[i][seq_len:] = 1
 
-    mask = torch.ByteTensor(mask)
+    mask = torch.ByteTensor(mask).to(torch.bool)
     return mask.cuda() if cuda else mask
 
 
@@ -158,6 +158,15 @@ def glorot_init(params):
 
 def identity(x):
     return x
+
+
+def generate_square_subsequent_mask(sz):
+    """Generate a square mask for the sequence. The masked positions are filled with float('-inf').
+        Unmasked positions are filled with float(0.0).
+    """
+    mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+    mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+    return mask
 
 
 class LabelSmoothing(nn.Module):

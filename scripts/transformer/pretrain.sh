@@ -6,7 +6,7 @@ parser="transformer_parser"
 seed=0
 mined_num=$1
 freq=${2:-3}
-train_file="data/conala/${mined_num}/train.all_${mined_num}.bin"
+train_file="data/conala/${mined_num}/mined_${mined_num}.bin"
 dev_file="data/conala/${mined_num}/dev.bin"
 vocab="data/conala/${mined_num}/vocab.src_freq3.code_freq3.mined_${mined_num}.bin"
 dropout=0.3
@@ -57,6 +57,6 @@ python -u exp.py \
     --max_epoch ${max_epoch} \
     --beam_size ${beam_size} \
     --log_every 50 \
-    --save_to saved_models/conala/${model_name} 2>&1 | tee "logs/conala/${model_name}.log"
+    --save_to saved_models/conala/${model_name} 2>&1 | tee logs/conala/${model_name}.log
 
-. scripts/transformer/test.sh saved_models/conala/${model_name}.bin ${mined_num} 2>&1 | tee -a logs/conala/${model_name}.log
+#. scripts/transformer/test.sh saved_models/conala/${model_name}.bin ${mined_num} 2>&1 | tee -a logs/conala/${model_name}.log
