@@ -108,7 +108,7 @@ train_set = Dataset.from_bin_file("data/conala/train.gold.full.bin")
 for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_example]):
     print(f'Source:{src} \nTarget:{tgt} \n')
 ```
-![images](Desktop/nlp.jpg)
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/nlp.jpg)
 
 ## 4 Model Training & Fine-tuning
 
