@@ -3,14 +3,22 @@
 from asdl.asdl import *
 from asdl.hypothesis import Hypothesis
 from asdl.transition_system import *
+import torch
 
 
 class DecodeHypothesis(Hypothesis):
-    def __init__(self):
+    def __init__(self, rec_embed=False):
         super(DecodeHypothesis, self).__init__()
 
+        # new feature for transformer: record input embedding
+        if rec_embed:
+            self.action_embed = []
         self.action_infos = []
         self.code = None
+
+    def get_hist_action_embeddings(self):
+        # (tgt_action_len, action_embed_size)
+        return torch.stack(self.action_embed, dim=0)
 
     def clone_and_apply_action_info(self, action_info):
         action = action_info.action

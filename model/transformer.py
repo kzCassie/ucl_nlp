@@ -104,9 +104,6 @@ class TransformerParser(nn.Module):
         if args.primitive_token_label_smoothing:
             self.label_smoothing = LabelSmoothing(args.primitive_token_label_smoothing, len(self.vocab.primitive), ignore_indices=[0, 1, 2])
 
-        # initialize the decoder's state and cells with encoder hidden states
-        self.decoder_cell_init = nn.Linear(args.hidden_size, args.hidden_size)
-
         # bias for predicting ApplyConstructor and GenToken actions
         self.production_readout_b = nn.Parameter(torch.FloatTensor(len(transition_system.grammar) + 1).zero_())
         self.tgt_token_readout_b = nn.Parameter(torch.FloatTensor(len(vocab.primitive)).zero_())
@@ -470,7 +467,7 @@ class TransformerParser(nn.Module):
             aggregated_primitive_tokens.setdefault(token, []).append(token_pos)
 
         t = 0
-        hypotheses = [DecodeHypothesis()]
+        hypotheses = [DecodeHypothesis(rec_embed=True)]
         completed_hypotheses = []
         xs = []
 
@@ -490,6 +487,10 @@ class TransformerParser(nn.Module):
 
                     x[0, offset: offset + args.type_embed_size] = \
                         self.type_embed.weight[self.grammar.type2id[self.grammar.root_type]]
+
+                    # store history embedding in hyp
+                    assert len(hypotheses) == 1
+                    hypotheses[0].action_embed.append(x)
             else:
                 actions_tm1 = [hyp.actions[-1] for hyp in hypotheses]
 
@@ -531,7 +532,11 @@ class TransformerParser(nn.Module):
 
                 x = torch.cat(inputs, dim=-1)
 
-            xs.append(x)
+                # store history embedding in hyp
+                for i, hyp in enumerate(hypotheses):
+                    hyp.action_embed.append(x[i, :])
+
+            for hyp in hypotheses
 
             decoder_inputs = torch.stack(xs, dim=0)
             assert decoder_inputs.shape == (t+1, hyp_num, self.input_dim)

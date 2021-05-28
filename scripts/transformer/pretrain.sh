@@ -1,14 +1,21 @@
 #!/bin/bash
 set -e
+#set -x
 
+mined_num=$1
 parser="transformer_parser"
 
-seed=0
-mined_num=$1
-freq=${2:-3}
+echo "Training using ${mined_num} mined data."
+echo "Parser=${parser}."
+
+###########
+echo "****Pretraining with mined data****"
 train_file="data/conala/${mined_num}/mined_${mined_num}.bin"
 dev_file="data/conala/${mined_num}/dev.bin"
 vocab="data/conala/${mined_num}/vocab.src_freq3.code_freq3.mined_${mined_num}.bin"
+finetune_file="data/conala/${mined_num}/train.gold.full.bin"
+
+seed=0
 dropout=0.3
 hidden_size=256
 embed_size=128
@@ -18,7 +25,7 @@ type_embed_size=64
 lr=0.001
 lr_decay=0.5
 batch_size=64
-max_epoch=1
+max_epoch=80
 beam_size=15
 lstm='lstm'  # lstm
 lr_decay_after_epoch=15
@@ -30,6 +37,7 @@ echo commit hash: `git rev-parse HEAD` > logs/conala/${model_name}.log
 
 python -u exp.py \
     --parser ${parser} \
+    --cuda \
     --seed ${seed} \
     --mode train \
     --batch_size ${batch_size} \
@@ -59,4 +67,4 @@ python -u exp.py \
     --log_every 50 \
     --save_to saved_models/conala/${model_name} 2>&1 | tee logs/conala/${model_name}.log
 
-#. scripts/transformer/test.sh saved_models/conala/${model_name}.bin ${mined_num} 2>&1 | tee -a logs/conala/${model_name}.log
+. scripts/transformer/test.sh saved_models/conala/${model_name}.bin ${mined_num} ${parser} 2>&1 | tee -a logs/conala/${model_name}.log
