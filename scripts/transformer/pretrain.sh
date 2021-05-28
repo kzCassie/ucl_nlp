@@ -37,7 +37,6 @@ echo commit hash: `git rev-parse HEAD` > logs/conala/${model_name}.log
 
 python -u exp.py \
     --parser ${parser} \
-    --cuda \
     --seed ${seed} \
     --mode train \
     --batch_size ${batch_size} \

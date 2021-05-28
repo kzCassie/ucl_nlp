@@ -11,6 +11,7 @@ class DecodeHypothesis(Hypothesis):
         super(DecodeHypothesis, self).__init__()
 
         # new feature for transformer: record input embedding
+        self.rec_embed = rec_embed
         if rec_embed:
             self.action_embed = []
         self.action_infos = []

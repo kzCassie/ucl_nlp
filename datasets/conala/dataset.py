@@ -28,6 +28,7 @@ def preprocess_conala_dataset(train_file, test_file, grammar_file, src_freq=3, c
 
     print('process gold training data...')
     train_examples = preprocess_dataset(train_file, name='train', transition_system=transition_system)
+    print(f"original train data size: {len(train_examples)}")
 
     # held out 200 examples for development
     full_train_examples = train_examples[:]

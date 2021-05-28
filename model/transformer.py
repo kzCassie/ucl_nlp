@@ -488,9 +488,10 @@ class TransformerParser(nn.Module):
                     x[0, offset: offset + args.type_embed_size] = \
                         self.type_embed.weight[self.grammar.type2id[self.grammar.root_type]]
 
-                    # store history embedding in hyp
-                    assert len(hypotheses) == 1
-                    hypotheses[0].action_embed.append(x)
+                # store history embedding in hyp
+                assert len(hypotheses) == 1
+                for hyp in hypotheses:
+                    hyp.action_embed.append(x)
             else:
                 actions_tm1 = [hyp.actions[-1] for hyp in hypotheses]
 
@@ -536,9 +537,12 @@ class TransformerParser(nn.Module):
                 for i, hyp in enumerate(hypotheses):
                     hyp.action_embed.append(x[i, :])
 
-            for hyp in hypotheses
+            decoder_inputs = []
+            for hyp in hypotheses:
+                decoder_inputs.append(hyp.get_hist_action_embeddings())
+            decoder_inputs = torch.cat(decoder_inputs, dim=1)
 
-            decoder_inputs = torch.stack(xs, dim=0)
+            print(f"decoder_inputs:{decoder_inputs.shape}")
             assert decoder_inputs.shape == (t+1, hyp_num, self.input_dim)
 
             hyp_len = (np.ones(hyp_num) * (t+1)).astype('int')      #TODO: is it correct for completed actions?
