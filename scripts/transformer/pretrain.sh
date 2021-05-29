@@ -4,7 +4,6 @@ set -e
 
 mined_num=$1
 #parser="transformer_parser"
-#parser="default_parser"
 parser="transformer_enc_parser"
 
 echo "Training using ${mined_num} mined data."
@@ -31,6 +30,7 @@ max_epoch=80
 beam_size=15
 lstm='lstm'  # lstm
 lr_decay_after_epoch=15
+valid_every_epoch=5
 model_name=${parser}.hidden${hidden_size}.embed${embed_size}.action${action_embed_size}.field${field_embed_size}.type${type_embed_size}.dr${dropout}.lr${lr}.lr_de${lr_decay}.lr_da${lr_decay_after_epoch}.beam${beam_size}.$(basename ${vocab}).$(basename ${train_file}).glorot.par_state.seed${seed}
 
 echo "**** Writing results to logs/conala/${model_name}.log ****"
@@ -39,6 +39,7 @@ echo commit hash: `git rev-parse HEAD` > logs/conala/${model_name}.log
 
 python -u exp.py \
     --parser ${parser} \
+    --cuda ${cuda} \
     --seed ${seed} \
     --mode train \
     --batch_size ${batch_size} \
@@ -66,6 +67,7 @@ python -u exp.py \
     --max_epoch ${max_epoch} \
     --beam_size ${beam_size} \
     --log_every 50 \
+    --valid_every_epoch ${valid_every_epoch} \
     --save_to saved_models/conala/${model_name} 2>&1 | tee logs/conala/${model_name}.log
 
 . scripts/transformer/test.sh saved_models/conala/${model_name}.bin ${mined_num} ${parser} 2>&1 | tee -a logs/conala/${model_name}.log

@@ -192,7 +192,7 @@ class TransformerEnc(nn.Module):
         # (batch_size, src_sent_len)
         src_key_padding_mask = length_array_to_mask_tensor(src_sents_len, args.cuda)
 
-        # (src_sent_len, batch_size, 128????) TODO: size of encoder output
+        # (src_sent_len, batch_size, hidden_state)
         src_encodings = self.transformer_encoder(src, src_mask, src_key_padding_mask)
 
         # TODO: shape assertion
@@ -204,7 +204,8 @@ class TransformerEnc(nn.Module):
         assert(src_encodings.shape == (src_sent_len, batch_size, args.hidden_size))
 
         src_encodings = src_encodings.permute(1, 0, 2)
-        last_state = src_encodings[:, -1, :]
+        # last_state = src_encodings[:, 0, :]
+        last_state = src_encodings.mean(1)
         last_cell = last_state
         return src_encodings, (last_state, last_cell)
 
