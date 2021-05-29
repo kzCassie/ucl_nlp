@@ -88,10 +88,12 @@ Run the following shell script to get the Conala json file from http://www.phont
 
 ###Clarification on Data Preprocessing
 
-Please note the data were preprocessed with the downloaded mined file and topk=100000 (First k number from mined file) using the code below.
+Please note the data were preprocessed with the downloaded files and topk=100000 (First k number from mined file) using the code below.
 
 ```
-mined_data_file = "data/conala-corpus/conala-mined.jsonl" # path to the downloaded mined file
+train_file = 'data/conala-corpus/conala-train.json'
+test_file = 'data/conala-corpus/conala-test.json'
+mined_data_file = 'data/conala-corpus/conala-mined.jsonl' # path to the downloaded mined file
 topk = 100000 # number of pretraining data to be preprocessed
 !python datasets/conala/dataset.py --pretrain=$mined_data_file --topk=$topk
 ```
