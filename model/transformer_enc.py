@@ -28,15 +28,15 @@ from model.pointer_net import PointerNet
 from model.pos_enc import PositionalEncoding
 
 
-@Registrable.register('transformer_parser')
-class TransformerParser(nn.Module):
+@Registrable.register('transformer_enc_parser')
+class TransformerEnc(nn.Module):
     """Implementation of a semantic parser
 
     The parser translates a natural language utterance into an AST defined under
     the ASDL specification, using the transition system described in https://arxiv.org/abs/1810.02720
     """
     def __init__(self, args, vocab, transition_system):
-        super(TransformerParser, self).__init__()
+        super(TransformerEnc, self).__init__()
 
         self.args = args
         self.vocab = vocab
@@ -68,41 +68,59 @@ class TransformerParser(nn.Module):
         nn.init.xavier_normal_(self.field_embed.weight.data)
         nn.init.xavier_normal_(self.type_embed.weight.data)
 
-        # decoder input dimension
-        input_dim = args.action_embed_size  # previous action
-        # frontier info
-        input_dim += args.action_embed_size * (not args.no_parent_production_embed)
-        input_dim += args.field_embed_size * (not args.no_parent_field_embed)
-        input_dim += args.type_embed_size * (not args.no_parent_field_type_embed)
-        self.input_dim = input_dim
-
-        #### Transformer ####
         # Transformer Encoder
         transformer_encoder_layer = nn.TransformerEncoderLayer(args.hidden_size, nhead=args.enc_nhead)
         self.transformer_encoder = nn.TransformerEncoder(transformer_encoder_layer, num_layers=args.enc_nlayer)
         self.src_pos_encoder = PositionalEncoding(args.hidden_size, dropout=0.1)
-
-        # Transformer Decoder
-        transformer_decoder_layer = nn.TransformerDecoderLayer(args.hidden_size, nhead=args.dec_nhead)
-        self.transformer_decoder = nn.TransformerDecoder(transformer_decoder_layer, num_layers=args.dec_nlayer)
-        self.tgt_pos_encoder = PositionalEncoding(args.hidden_size, dropout=0.1)
-
-        # Transformer decoder must accepts vectors of the same hidden_size as the encoder.
         self.src_enc_linear = nn.Linear(args.embed_size, args.hidden_size)
-        self.tgt_dec_linear = nn.Linear(self.input_dim, args.hidden_size)
-        #####################
+
+        # LSTM decoder
+        if args.lstm == 'lstm':
+            input_dim = args.action_embed_size  # previous action
+            # frontier info
+            input_dim += args.action_embed_size * (not args.no_parent_production_embed)
+            input_dim += args.field_embed_size * (not args.no_parent_field_embed)
+            input_dim += args.type_embed_size * (not args.no_parent_field_type_embed)
+            input_dim += args.hidden_size * (not args.no_parent_state)
+            input_dim += args.att_vec_size * (not args.no_input_feed)  # input feeding
+            self.decoder_lstm = nn.LSTMCell(input_dim, args.hidden_size)
+        elif args.lstm == 'parent_feed':
+            from .lstm import ParentFeedingLSTMCell
+
+            input_dim = args.action_embed_size  # previous action
+            # frontier info
+            input_dim += args.action_embed_size * (not args.no_parent_production_embed)
+            input_dim += args.field_embed_size * (not args.no_parent_field_embed)
+            input_dim += args.type_embed_size * (not args.no_parent_field_type_embed)
+            input_dim += args.att_vec_size * (not args.no_input_feed)  # input feeding
+            self.decoder_lstm = ParentFeedingLSTMCell(input_dim, args.hidden_size)
+        else:
+            raise ValueError('Unknown LSTM type %s' % args.lstm)
 
         if args.no_copy is False:
             # pointer net for copying tokens from source side
-            self.src_pointer_net = PointerNet(query_vec_size=args.hidden_size, src_encoding_size=args.hidden_size)
+            self.src_pointer_net = PointerNet(query_vec_size=args.att_vec_size, src_encoding_size=args.hidden_size)
 
             # given the decoder's hidden state, predict whether to copy or generate a target primitive token
             # output: [p(gen(token)) | s_t, p(copy(token)) | s_t]
 
-            self.primitive_predictor = nn.Linear(args.hidden_size, 2)
+            self.primitive_predictor = nn.Linear(args.att_vec_size, 2)
 
         if args.primitive_token_label_smoothing:
             self.label_smoothing = LabelSmoothing(args.primitive_token_label_smoothing, len(self.vocab.primitive), ignore_indices=[0, 1, 2])
+
+        # initialize the decoder's state and cells with encoder hidden states
+        self.decoder_cell_init = nn.Linear(args.hidden_size, args.hidden_size)
+
+        # attention: dot product attention
+        # project source encoding to decoder rnn's hidden space
+
+        self.att_src_linear = nn.Linear(args.hidden_size, args.hidden_size, bias=False)
+
+        # transformation of decoder hidden states and context vectors before reading out target words
+        # this produces the `attentional vector` in (Luong et al., 2015)
+
+        self.att_vec_linear = nn.Linear(args.hidden_size + args.hidden_size, args.att_vec_size, bias=False)
 
         # bias for predicting ApplyConstructor and GenToken actions
         self.production_readout_b = nn.Parameter(torch.FloatTensor(len(transition_system.grammar) + 1).zero_())
@@ -153,7 +171,9 @@ class TransformerParser(nn.Module):
             src_sents_len: a list of lengths of input source sentences, sorted by descending order
 
         Returns:
-            src_encodings: source encodings of shape (src_sent_len, batch_size, hidden_size)
+            src_encodings: source encodings of shape (batch_size, src_sent_len, hidden_size)
+            last_state, last_cell: the last hidden state and cell state of the encoder,
+                                   of shape (batch_size, hidden_size)
         """
         args = self.args
 
@@ -183,186 +203,43 @@ class TransformerParser(nn.Module):
         assert(src_key_padding_mask.shape == (batch_size, src_sent_len))
         assert(src_encodings.shape == (src_sent_len, batch_size, args.hidden_size))
 
-        return src_encodings, src_key_padding_mask
+        src_encodings = src_encodings.permute(1, 0, 2)
+        last_state = src_encodings[:, -1, :]
+        last_cell = last_state
+        return src_encodings, (last_state, last_cell)
 
-    def decode(self, batch, src_encodings, src_key_padding_mask):
-        """Given a batch of examples and their encodings of input utterances,
-        compute query vectors at each decoding time step, which are used to compute
-        action probabilities
+    def init_decoder_state(self, enc_last_state, enc_last_cell):
+        """Compute the initial decoder hidden state and cell state"""
 
-        Args:
-            batch: a `Batch` object storing input examples
-            src_encodings: variable of shape (src_sent_len, batch_size, hidden_size), encodings of source utterances
-            src_key_padding_mask: to be used as the memory_key_padding_mask for the attention decoder
+        h_0 = self.decoder_cell_init(enc_last_cell)
+        h_0 = torch.tanh(h_0)
 
-        Returns:
-            Query vectors, a variable of shape (tgt_action_len, batch_size, hidden_size)
-        """
-        batch_size = len(batch)
-        tgt_action_len = batch.max_action_num
-        args = self.args
-
-        # # (batch_size, query_len, 128)
-        # src_encodings_att_linear = self.att_src_linear(src_encodings)
-        # TODO:additional linear layer to remain parallel to LSTM model?
-
-        # Input of the decoder is composite of diff parts.
-        # Each action recursively depends on the previous action
-        # Compared with the original tranX, parts that are specific to RNN are removed
-        xs = []
-        history_states = []
-        zero_action_embed = Variable(self.new_tensor(args.action_embed_size).zero_())
-        for t in range(tgt_action_len):
-            # the input to the decoder LSTM is a concatenation of multiple signals
-            # [
-            #   embedding of previous action -> `a_tm1_embed`,
-            #   embedding of the current frontier (parent) constructor (rule) -> `parent_production_embed`,
-            #   embedding of the frontier (parent) field -> `parent_field_embed`,
-            #   embedding of the ASDL type of the frontier field -> `parent_field_type_embed`,
-            # ]
-
-            if t == 0:
-                # no previous action
-                x = Variable(self.new_tensor(batch_size, self.input_dim).zero_(), requires_grad=False)
-
-                # initialize using the root type embedding
-                if args.no_parent_field_type_embed is False:
-                    offset = args.action_embed_size  # prev_action
-                    offset += args.action_embed_size * (not args.no_parent_production_embed)
-                    offset += args.field_embed_size * (not args.no_parent_field_embed)
-
-                    x[:, offset: offset + args.type_embed_size] = self.type_embed(Variable(self.new_long_tensor(
-                        [self.grammar.type2id[self.grammar.root_type] for e in batch.examples])))
-            else:
-                a_tm1_embeds = []
-                for example in batch.examples:
-                    # action t - 1
-                    if t < len(example.tgt_actions):
-                        a_tm1 = example.tgt_actions[t - 1]
-                        if isinstance(a_tm1.action, ApplyRuleAction):
-                            a_tm1_embed = self.production_embed.weight[self.grammar.prod2id[a_tm1.action.production]]
-                        elif isinstance(a_tm1.action, ReduceAction):
-                            a_tm1_embed = self.production_embed.weight[len(self.grammar)]
-                        else:
-                            a_tm1_embed = self.primitive_embed.weight[self.vocab.primitive[a_tm1.action.token]]
-                    else:
-                        a_tm1_embed = zero_action_embed
-
-                    a_tm1_embeds.append(a_tm1_embed)
-
-                # (batch_size, embed_size)
-                a_tm1_embeds = torch.stack(a_tm1_embeds)
-
-                inputs = [a_tm1_embeds]
-                if args.no_parent_production_embed is False:
-                    parent_production_embed = self.production_embed(batch.get_frontier_prod_idx(t))
-                    inputs.append(parent_production_embed)
-                if args.no_parent_field_embed is False:
-                    parent_field_embed = self.field_embed(batch.get_frontier_field_idx(t))
-                    inputs.append(parent_field_embed)
-                if args.no_parent_field_type_embed is False:
-                    parent_field_type_embed = self.type_embed(batch.get_frontier_field_type_idx(t))
-                    inputs.append(parent_field_type_embed)
-
-                # (batch_size, input_dim)
-                x = torch.cat(inputs, dim=-1)
-                assert(x.shape==(batch_size, self.input_dim))
-            xs.append(x)
-
-        # decoder_inputs: (tgt_action_len, batch_size, input_dim)
-        decoder_inputs = torch.stack(xs, dim=0)
-        assert decoder_inputs.shape == (batch.max_action_num, batch_size, self.input_dim)
-
-        # Transformer decoder
-        # (tgt_action_len, batch_size, hidden_size)
-        tgt_dec_vec = torch.tanh(self.tgt_dec_linear(decoder_inputs))
-        # (tgt_action_len, batch_size, hidden_size)
-        tgt = self.tgt_pos_encoder(tgt_dec_vec * math.sqrt(self.input_dim))
-        # (tgt_action_len, tgt_action_len)
-        tgt_mask = generate_square_subsequent_mask(tgt_action_len)
-        memory_mask = None
-        # (batch_size, tgt_action_len)
-        tgt_key_padding_mask = batch.tgt_action_mask
-        # (batch_size, src_sent_len)
-        memory_key_padding_mask = src_key_padding_mask.clone()
-
-        # TODO: shape assertion
-        assert(tgt_dec_vec.shape==(tgt_action_len, batch_size, args.hidden_size))
-        assert(tgt.shape==(tgt_action_len, batch_size, args.hidden_size))
-        assert(tgt_mask.shape==(tgt_action_len, tgt_action_len))
-        assert(tgt_key_padding_mask.shape==(batch_size, tgt_action_len))
-
-        att_vecs = self.transformer_decoder(tgt, src_encodings, tgt_mask, memory_mask,
-                                 tgt_key_padding_mask, memory_key_padding_mask)
-        assert(att_vecs.shape==(tgt_action_len, batch_size, args.hidden_size))
-
-        return att_vecs
-
-    def step(self, x, src_encodings, src_key_padding_mask, hyp_len):
-        """
-        At each step during inference time, x contains embeddings of tentative hypothesis. We need to mask
-        appropriately and pass the entire x into the transformer decoder to get the updated att_vec for each
-        hypothesis.
-
-        Args:
-            x: tgt inputs of shape (t, hyp_num, input_dim), t is the max hypothesis length at step t during inference.
-            src_encodings: variable of shape (src_sent_len, batch_size, hidden_size), encodings of source utterances.
-            src_key_padding_mask: to be used as the memory_key_padding_mask for the attention decoder.
-            hyp_len: in-progress hypothesis length np.array of shape (hyp_num,). All values = t.
-
-        Returns:
-            att_t: output of the transformer decoder for the t-th step of the shape (hyp_num, hidden_size).
-        """
-        tgt_action_len = x.shape[0]
-        batch_size = x.shape[1]
-        args = self.args
-
-        # Transformer decoder
-        # (tgt_action_len, batch_size, hidden_size)
-        tgt_dec_vec = torch.tanh(self.tgt_dec_linear(x))
-        # (tgt_action_len, batch_size, hidden_size)
-        tgt = self.tgt_pos_encoder(tgt_dec_vec * math.sqrt(self.input_dim))
-        # (tgt_action_len, tgt_action_len)
-        tgt_mask = generate_square_subsequent_mask(tgt_action_len)
-        memory_mask = None
-        # (batch_size, tgt_action_len)
-        tgt_key_padding_mask = length_array_to_mask_tensor(hyp_len, args.cuda)
-        # (batch_size, src_sent_len)
-        memory_key_padding_mask = src_key_padding_mask.clone()
-
-        # TODO: shape assertion
-        assert(tgt_dec_vec.shape==(tgt_action_len, batch_size, args.hidden_size))
-        assert(tgt.shape==(tgt_action_len, batch_size, args.hidden_size))
-        assert(tgt_mask.shape==(tgt_action_len, tgt_action_len))
-        assert(tgt_key_padding_mask.shape==(batch_size, tgt_action_len))
-        # assert(memory_key_padding_mask.shape[0]==batch_size) TODO:incompatible batch_size during inference time
-
-        att_vecs = self.transformer_decoder(tgt, src_encodings, tgt_mask, memory_mask,
-                                            tgt_key_padding_mask, memory_key_padding_mask=None)
-        assert(att_vecs.shape==(tgt_action_len, batch_size, args.hidden_size))
-
-        return att_vecs[-1, :, :]
+        return h_0, Variable(self.new_tensor(h_0.size()).zero_())
 
     def score(self, examples, return_encode_state=False):
-        """Training time
-        Given a list of examples, compute the log-likelihood of generating the target AST
+        """Given a list of examples, compute the log-likelihood of generating the target AST
 
         Args:
             examples: a batch of examples
             return_encode_state: return encoding states of input utterances
         output: score for each training example: Variable(batch_size)
         """
+
         batch = Batch(examples, self.grammar, self.vocab, copy=self.args.no_copy is False, cuda=self.args.cuda)
 
-        # src_encodings: (src_sent_len, batch_size, hidden_size)
-        src_encodings, src_key_padding_mask = self.encode(batch.src_sents_var, batch.src_sents_len)
+        # src_encodings: (batch_size, src_sent_len, hidden_size * 2)
+        # (last_state, last_cell, dec_init_vec): (batch_size, hidden_size)
+        src_encodings, (last_state, last_cell) = self.encode(batch.src_sents_var, batch.src_sents_len)
+        dec_init_vec = self.init_decoder_state(last_state, last_cell)
 
         # query vectors are sufficient statistics used to compute action probabilities
         # query_vectors: (tgt_action_len, batch_size, hidden_size)
-        query_vectors = self.decode(batch, src_encodings, src_key_padding_mask)
 
-        # src_encodings: (batch_size, src_sent_len, hidden_size)
-        src_encodings = src_encodings.permute(1, 0, 2)
+        # if use supervised attention
+        if self.args.sup_attention:
+            query_vectors, att_prob = self.decode(batch, src_encodings, dec_init_vec)
+        else:
+            query_vectors = self.decode(batch, src_encodings, dec_init_vec)
 
         # ApplyRule (i.e., ApplyConstructor) action probabilities
         # (tgt_action_len, batch_size, grammar_size)
@@ -432,11 +309,181 @@ class TransformerParser(nn.Module):
         scores = torch.sum(action_prob, dim=0)
 
         returns = [scores]
+        if self.args.sup_attention:
+            returns.append(att_prob)
+        if return_encode_state: returns.append(last_state)
+
         return returns
 
+    def step(self, x, h_tm1, src_encodings, src_encodings_att_linear, src_token_mask=None, return_att_weight=False):
+        """Perform a single time-step of computation in decoder LSTM
+
+        Args:
+            x: variable of shape (batch_size, hidden_size), input
+            h_tm1: Tuple[Variable(batch_size, hidden_size), Variable(batch_size, hidden_size)], previous
+                   hidden and cell states
+            src_encodings: variable of shape (batch_size, src_sent_len, hidden_size * 2), encodings of source utterances
+            src_encodings_att_linear: linearly transformed source encodings
+            src_token_mask: mask over source tokens (Note: unused entries are masked to **one**)
+            return_att_weight: return attention weights
+
+        Returns:
+            The new LSTM hidden state and cell state
+        """
+
+        # h_t: (batch_size, hidden_size)
+        h_t, cell_t = self.decoder_lstm(x, h_tm1)
+
+        ctx_t, alpha_t = nn_utils.dot_prod_attention(h_t,
+                                                     src_encodings, src_encodings_att_linear,
+                                                     mask=src_token_mask)
+
+        att_t = torch.tanh(self.att_vec_linear(torch.cat([h_t, ctx_t], 1)))  # E.q. (5)
+        att_t = self.dropout(att_t)
+
+        if return_att_weight:
+            return (h_t, cell_t), att_t, alpha_t
+        else: return (h_t, cell_t), att_t
+
+    def decode(self, batch, src_encodings, dec_init_vec):
+        """Given a batch of examples and their encodings of input utterances,
+        compute query vectors at each decoding time step, which are used to compute
+        action probabilities
+
+        Args:
+            batch: a `Batch` object storing input examples
+            src_encodings: variable of shape (batch_size, src_sent_len, hidden_size * 2), encodings of source utterances
+            dec_init_vec: a tuple of variables representing initial decoder states
+
+        Returns:
+            Query vectors, a variable of shape (tgt_action_len, batch_size, hidden_size)
+            Also return the attention weights over candidate tokens if using supervised attention
+        """
+
+        batch_size = len(batch)
+        args = self.args
+
+        if args.lstm == 'parent_feed':
+            h_tm1 = dec_init_vec[0], dec_init_vec[1], \
+                    Variable(self.new_tensor(batch_size, args.hidden_size).zero_()), \
+                    Variable(self.new_tensor(batch_size, args.hidden_size).zero_())
+        else:
+            h_tm1 = dec_init_vec
+
+        # (batch_size, query_len, hidden_size)
+        src_encodings_att_linear = self.att_src_linear(src_encodings)
+
+        zero_action_embed = Variable(self.new_tensor(args.action_embed_size).zero_())
+
+        att_vecs = []
+        history_states = []
+        att_probs = []
+        att_weights = []
+
+        for t in range(batch.max_action_num):
+            # the input to the decoder LSTM is a concatenation of multiple signals
+            # [
+            #   embedding of previous action -> `a_tm1_embed`,
+            #   previous attentional vector -> `att_tm1`,
+            #   embedding of the current frontier (parent) constructor (rule) -> `parent_production_embed`,
+            #   embedding of the frontier (parent) field -> `parent_field_embed`,
+            #   embedding of the ASDL type of the frontier field -> `parent_field_type_embed`,
+            #   LSTM state of the parent action -> `parent_states`
+            # ]
+
+            if t == 0:
+                x = Variable(self.new_tensor(batch_size, self.decoder_lstm.input_size).zero_(), requires_grad=False)
+
+                # initialize using the root type embedding
+                if args.no_parent_field_type_embed is False:
+                    offset = args.action_embed_size  # prev_action
+                    offset += args.att_vec_size * (not args.no_input_feed)
+                    offset += args.action_embed_size * (not args.no_parent_production_embed)
+                    offset += args.field_embed_size * (not args.no_parent_field_embed)
+
+                    x[:, offset: offset + args.type_embed_size] = self.type_embed(Variable(self.new_long_tensor(
+                        [self.grammar.type2id[self.grammar.root_type] for e in batch.examples])))
+            else:
+                a_tm1_embeds = []
+                for example in batch.examples:
+                    # action t - 1
+                    if t < len(example.tgt_actions):
+                        a_tm1 = example.tgt_actions[t - 1]
+                        if isinstance(a_tm1.action, ApplyRuleAction):
+                            a_tm1_embed = self.production_embed.weight[self.grammar.prod2id[a_tm1.action.production]]
+                        elif isinstance(a_tm1.action, ReduceAction):
+                            a_tm1_embed = self.production_embed.weight[len(self.grammar)]
+                        else:
+                            a_tm1_embed = self.primitive_embed.weight[self.vocab.primitive[a_tm1.action.token]]
+                    else:
+                        a_tm1_embed = zero_action_embed
+
+                    a_tm1_embeds.append(a_tm1_embed)
+
+                a_tm1_embeds = torch.stack(a_tm1_embeds)
+
+                inputs = [a_tm1_embeds]
+                if args.no_input_feed is False:
+                    inputs.append(att_tm1)
+                if args.no_parent_production_embed is False:
+                    parent_production_embed = self.production_embed(batch.get_frontier_prod_idx(t))
+                    inputs.append(parent_production_embed)
+                if args.no_parent_field_embed is False:
+                    parent_field_embed = self.field_embed(batch.get_frontier_field_idx(t))
+                    inputs.append(parent_field_embed)
+                if args.no_parent_field_type_embed is False:
+                    parent_field_type_embed = self.type_embed(batch.get_frontier_field_type_idx(t))
+                    inputs.append(parent_field_type_embed)
+
+                # append history states
+                actions_t = [e.tgt_actions[t] if t < len(e.tgt_actions) else None for e in batch.examples]
+                if args.no_parent_state is False:
+                    parent_states = torch.stack([history_states[p_t][0][batch_id]
+                                                 for batch_id, p_t in
+                                                 enumerate(a_t.parent_t if a_t else 0 for a_t in actions_t)])
+
+                    parent_cells = torch.stack([history_states[p_t][1][batch_id]
+                                                for batch_id, p_t in
+                                                enumerate(a_t.parent_t if a_t else 0 for a_t in actions_t)])
+
+                    if args.lstm == 'parent_feed':
+                        h_tm1 = (h_tm1[0], h_tm1[1], parent_states, parent_cells)
+                    else:
+                        inputs.append(parent_states)
+
+                x = torch.cat(inputs, dim=-1)
+
+            (h_t, cell_t), att_t, att_weight = self.step(x, h_tm1, src_encodings,
+                                                         src_encodings_att_linear,
+                                                         src_token_mask=batch.src_token_mask,
+                                                         return_att_weight=True)
+
+            # if use supervised attention
+            if args.sup_attention:
+                for e_id, example in enumerate(batch.examples):
+                    if t < len(example.tgt_actions):
+                        action_t = example.tgt_actions[t].action
+                        cand_src_tokens = AttentionUtil.get_candidate_tokens_to_attend(example.src_sent, action_t)
+                        if cand_src_tokens:
+                            att_prob = [att_weight[e_id, token_id] for token_id in cand_src_tokens]
+                            if len(att_prob) > 1: att_prob = torch.cat(att_prob).sum()
+                            else: att_prob = att_prob[0]
+                            att_probs.append(att_prob)
+
+            history_states.append((h_t, cell_t))
+            att_vecs.append(att_t)
+            att_weights.append(att_weight)
+
+            h_tm1 = (h_t, cell_t)
+            att_tm1 = att_t
+
+        att_vecs = torch.stack(att_vecs, dim=0)
+        if args.sup_attention:
+            return att_vecs, att_probs
+        else: return att_vecs
+
     def parse(self, src_sent, context=None, beam_size=5, debug=False):
-        """Test time
-        Perform beam search to infer the target AST given a source utterance
+        """Perform beam search to infer the target AST given a source utterance
 
         Args:
             src_sent: list of source utterance tokens
@@ -446,16 +493,26 @@ class TransformerParser(nn.Module):
         Returns:
             A list of `DecodeHypothesis`, each representing an AST
         """
+
         args = self.args
         primitive_vocab = self.vocab.primitive
         T = torch.cuda if args.cuda else torch
 
         src_sent_var = nn_utils.to_input_variable([src_sent], self.vocab.source, cuda=args.cuda, training=False)
 
-        # Variable(src_sent_len, 1, hidden_size)
-        src_encodings, src_key_padding_mask = self.encode(src_sent_var, [len(src_sent)])
+        # Variable(1, src_sent_len, hidden_size * 2)
+        src_encodings, (last_state, last_cell) = self.encode(src_sent_var, [len(src_sent)])
+        # (1, src_sent_len, hidden_size)
+        src_encodings_att_linear = self.att_src_linear(src_encodings)
 
-        # decoding
+        dec_init_vec = self.init_decoder_state(last_state, last_cell)
+        if args.lstm == 'parent_feed':
+            h_tm1 = dec_init_vec[0], dec_init_vec[1], \
+                    Variable(self.new_tensor(args.hidden_size).zero_()), \
+                    Variable(self.new_tensor(args.hidden_size).zero_())
+        else:
+            h_tm1 = dec_init_vec
+
         zero_action_embed = Variable(self.new_tensor(args.action_embed_size).zero_())
 
         with torch.no_grad():
@@ -468,30 +525,29 @@ class TransformerParser(nn.Module):
             aggregated_primitive_tokens.setdefault(token, []).append(token_pos)
 
         t = 0
-        hypotheses = [DecodeHypothesis(rec_embed=True)]
+        hypotheses = [DecodeHypothesis()]
+        hyp_states = [[]]
         completed_hypotheses = []
 
         while len(completed_hypotheses) < beam_size and t < args.decode_max_time_step:
             hyp_num = len(hypotheses)
 
-            # (src_sent_len, hyp_num, hidden_size)
-            exp_src_encodings = src_encodings.expand(src_encodings.size(0), hyp_num, src_encodings.size(2))
+            # (hyp_num, src_sent_len, hidden_size * 2)
+            exp_src_encodings = src_encodings.expand(hyp_num, src_encodings.size(1), src_encodings.size(2))
+            # (hyp_num, src_sent_len, hidden_size)
+            exp_src_encodings_att_linear = src_encodings_att_linear.expand(hyp_num, src_encodings_att_linear.size(1), src_encodings_att_linear.size(2))
 
             if t == 0:
                 with torch.no_grad():
-                    x = Variable(self.new_tensor(1, self.input_dim).zero_())
+                    x = Variable(self.new_tensor(1, self.decoder_lstm.input_size).zero_())
                 if args.no_parent_field_type_embed is False:
                     offset = args.action_embed_size  # prev_action
+                    offset += args.att_vec_size * (not args.no_input_feed)
                     offset += args.action_embed_size * (not args.no_parent_production_embed)
                     offset += args.field_embed_size * (not args.no_parent_field_embed)
 
                     x[0, offset: offset + args.type_embed_size] = \
                         self.type_embed.weight[self.grammar.type2id[self.grammar.root_type]]
-
-                # store history embedding in hyp
-                assert len(hypotheses) == 1
-                for hyp in hypotheses:
-                    hyp.add_action_embedding(x, t)
             else:
                 actions_tm1 = [hyp.actions[-1] for hyp in hypotheses]
 
@@ -511,6 +567,8 @@ class TransformerParser(nn.Module):
                 a_tm1_embeds = torch.stack(a_tm1_embeds)
 
                 inputs = [a_tm1_embeds]
+                if args.no_input_feed is False:
+                    inputs.append(att_tm1)
                 if args.no_parent_production_embed is False:
                     # frontier production
                     frontier_prods = [hyp.frontier_node.production for hyp in hypotheses]
@@ -531,23 +589,22 @@ class TransformerParser(nn.Module):
                         self.grammar.type2id[type] for type in frontier_field_types])))
                     inputs.append(frontier_field_type_embeds)
 
-                # (hyp_num, input_dim)
+                # parent states
+                if args.no_parent_state is False:
+                    p_ts = [hyp.frontier_node.created_time for hyp in hypotheses]
+                    parent_states = torch.stack([hyp_states[hyp_id][p_t][0] for hyp_id, p_t in enumerate(p_ts)])
+                    parent_cells = torch.stack([hyp_states[hyp_id][p_t][1] for hyp_id, p_t in enumerate(p_ts)])
+
+                    if args.lstm == 'parent_feed':
+                        h_tm1 = (h_tm1[0], h_tm1[1], parent_states, parent_cells)
+                    else:
+                        inputs.append(parent_states)
+
                 x = torch.cat(inputs, dim=-1)
 
-                # store history embedding in hyp
-                for i, hyp in enumerate(hypotheses):
-                    hyp.add_action_embedding(x[i, :].unsqueeze(0), t)
-
-            decoder_inputs = []
-            for hyp in hypotheses:
-                decoder_inputs.append(hyp.get_hist_action_embeddings(t))
-            decoder_inputs = torch.stack(decoder_inputs, dim=1)
-            assert decoder_inputs.shape == (t+1, hyp_num, self.input_dim)
-
-            hyp_len = (np.ones(hyp_num) * (t+1)).astype('int')      #TODO: is it correct for completed actions?
-            # (hyp_num, hidden_size)
-            att_t = self.step(decoder_inputs, exp_src_encodings, src_key_padding_mask, hyp_len)
-            assert att_t.shape == (hyp_num, args.hidden_size)
+            (h_t, cell_t), att_t = self.step(x, h_tm1, exp_src_encodings,
+                                             exp_src_encodings_att_linear,
+                                             src_token_mask=None)
 
             # Variable(batch_size, grammar_size)
             # apply_rule_log_prob = torch.log(F.softmax(self.production_readout(att_t), dim=-1))
@@ -560,8 +617,7 @@ class TransformerParser(nn.Module):
                 primitive_prob = gen_from_vocab_prob
             else:
                 # Variable(batch_size, src_sent_len)
-                src_encodings_perm = src_encodings.permute(1, 0, 2)
-                primitive_copy_prob = self.src_pointer_net(src_encodings_perm, None, att_t.unsqueeze(0)).squeeze(0)
+                primitive_copy_prob = self.src_pointer_net(src_encodings, None, att_t.unsqueeze(0)).squeeze(0)
 
                 # Variable(batch_size, 2)
                 primitive_predictor_prob = F.softmax(self.primitive_predictor(att_t), dim=-1)
@@ -638,7 +694,7 @@ class TransformerParser(nn.Module):
                 if new_hyp_scores is None: new_hyp_scores = gen_token_new_hyp_scores
                 else: new_hyp_scores = torch.cat([new_hyp_scores, gen_token_new_hyp_scores])
             top_new_hyp_scores, top_new_hyp_pos = torch.topk(new_hyp_scores,
-                                                             k=min(new_hyp_scores.size()[0], beam_size - len(completed_hypotheses)))
+                                                             k=min(new_hyp_scores.size(0), beam_size - len(completed_hypotheses)))
 
             live_hyp_ids = []
             new_hypotheses = []
@@ -729,6 +785,9 @@ class TransformerParser(nn.Module):
                     live_hyp_ids.append(prev_hyp_id)
 
             if live_hyp_ids:
+                hyp_states = [hyp_states[i] + [(h_t[i], cell_t[i])] for i in live_hyp_ids]
+                h_tm1 = (h_t[live_hyp_ids], cell_t[live_hyp_ids])
+                att_tm1 = att_t[live_hyp_ids]
                 hypotheses = new_hypotheses
                 hyp_scores = Variable(self.new_tensor([hyp.score for hyp in hypotheses]))
                 t += 1

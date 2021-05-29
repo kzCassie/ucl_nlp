@@ -7,7 +7,6 @@ test_file="data/conala/${mined_num}/test.bin"
 
 python exp.py \
     --parser ${parser} \
-    --cuda \
     --mode test \
     --load_model $1 \
     --beam_size 15 \

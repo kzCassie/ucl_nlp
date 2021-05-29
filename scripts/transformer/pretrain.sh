@@ -3,7 +3,9 @@ set -e
 #set -x
 
 mined_num=$1
-parser="transformer_parser"
+#parser="transformer_parser"
+#parser="default_parser"
+parser="transformer_enc_parser"
 
 echo "Training using ${mined_num} mined data."
 echo "Parser=${parser}."
