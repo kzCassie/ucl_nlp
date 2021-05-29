@@ -188,7 +188,7 @@ class TransformerEnc(nn.Module):
         # (src_sent_len, batch_size, hidden_size)
         src = self.src_pos_encoder(src_enc_vec * math.sqrt(args.embed_size))
         # (src_sent_len,src_sent_len)
-        src_mask = generate_square_subsequent_mask(src.shape[0])
+        src_mask = generate_square_subsequent_mask(src.shape[0], args.cuda)
         # (batch_size, src_sent_len)
         src_key_padding_mask = length_array_to_mask_tensor(src_sents_len, args.cuda)
 
