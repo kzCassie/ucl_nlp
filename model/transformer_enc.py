@@ -204,8 +204,8 @@ class TransformerEnc(nn.Module):
         assert(src_encodings.shape == (src_sent_len, batch_size, args.hidden_size))
 
         src_encodings = src_encodings.permute(1, 0, 2)
-        last_state = src_encodings[:, -1, :]
-        # last_state = src_encodings.mean(1)
+        # last_state = src_encodings[:, 0, :]
+        last_state = src_encodings.mean(1)
         last_cell = last_state
         return src_encodings, (last_state, last_cell)
 
@@ -825,7 +825,7 @@ class TransformerEnc(nn.Module):
 
         parser = cls(saved_args, vocab, transition_system)
 
-        parser.load_state_dict(saved_state, strict=False)
+        parser.load_state_dict(saved_state)
 
         if cuda: parser = parser.cuda()
         parser.eval()
