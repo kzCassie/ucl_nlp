@@ -146,7 +146,7 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 ! bash scripts/transformer/finetune.sh 100000
 ```
 
-## 5 Model Testing
+## 5 Model Testing with the test set provided in CoNaLa dataset.
 
 ### tranX_LSTM (Baseline)
 ```
@@ -186,17 +186,4 @@ TranX is described/used in the following two papers:
     url = {https://arxiv.org/abs/1806.07832v1},
     year = {2018}
 }
-```
-
-## Thanks
-
-We are also grateful to the following papers that inspire this work :P
-```
-Abstract Syntax Networks for Code Generation and Semantic Parsing.
-Maxim Rabinovich, Mitchell Stern, Dan Klein.
-in Proceedings of the Annual Meeting of the Association for Computational Linguistics, 2017
-
-The Zephyr Abstract Syntax Description Language.
-Daniel C. Wang, Andrew W. Appel, Jeff L. Korn, and Christopher S. Serra.
-in Proceedings of the Conference on Domain-Specific Languages, 1997
 ```
