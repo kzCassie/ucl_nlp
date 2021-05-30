@@ -1,17 +1,17 @@
 # COMP0087 Group Project - Python Code Generator
 
-Code generation is becoming a crucial and trending field in natural language processing (NLP), as it may help to improve programming productivity by developing automatic code. TranX is a transition-based neural abstract syntax parser for code generation, it achieves state-of-the-art results on the conala dataset.
+Code generation is becoming an important and trending field in natural language processing (NLP), as it could potentially help to improve programming productivity by developing automatic code. Given some natural language (NL) utterances, the code generator aims to output some source code that completes the task described in the NL intents. Many models for the code generation task have been proposed by the researchers. In particular, TranX is a transition-based neural abstract syntax parser for code generation, it achieves state-of-the-art results on the CoNaLa dataset.
 
-However, existing code generation models suffer from various problems, ranging from ... to ... For example, when reviewing the code generation results from tranX, we spot that it has bad performance for the... generation task as illustrated below. TranX uses standard bidirectional Long Short-term Memory (LSTM) network as the encoder and decoder, which may lead to this issue as ...
+However, existing code generation models suffer from various problems. For example, TRANX often leads to disadvantageous performance when dealing with long and complex code generation tasks. Furthermore, current code generators suffer from learning dependencies between distant positions. In particular, TRANX uses standard bidirectional Long Short-term Memory (LSTM) network as the encoder and decoder, which may lead to this issue due to its sequential computation. TranX also has high complexity and high computational cost due to its recurrent layer type.
 
-This project presents potential solutions by using tranX as the baseline, experimenting and modifying the encoder and decoder with different networks like Gated Recurrent Units (GRUs) and Transformer. Please see the performance results on the dataset conala using these three systems.
-(hopefully) both candidate models beat the current state-of-the-art tranX model on conala dataset.
+To solve these problems, this project explores potential solutions by using TRANX as the baseline, experimenting and modifying the encoder with different networks like Gated Recurrent Units (GRUs) and attentional encoder. In particular, TRANX_GRU beats the TRANX baseline results in terms of the exact match on the CoNaLa dataset. TranX_attentional_encoder achieves similar results as TRANX in terms of Corpus BLUE score while giving lower computational complexity per layer. (hopefully) both candidate models beat the current state-of-the-art tranX model on conala dataset.
 
-| Model             | Results      | Metric             |
-| -------           | ------------ | ------------------ |
-| tranX_LSTM        | ?            | Corpus BLEU            |
-| tranX_GRU         | ?            | Corpus BLEU            |
-| tranX_Transformer | ?            | Corpus BLEU            |
+
+| Model                     | Results      | Metric             |
+| ------------------------- | ------------ | ------------------ |
+| tranX_LSTM                | ?            | Corpus BLEU        |
+| tranX_GRU                 | ?            | Corpus BLEU        |
+| tranX_attentional_encoder | ?            | Corpus BLEU        |
 
 ## 1 System Architecture
 
@@ -88,10 +88,12 @@ Run the following shell script to get the Conala json file from http://www.phont
 
 ###Clarification on Data Preprocessing
 
-Please note the data were preprocessed with the downloaded mined file and topk=100000 (First k number from mined file) using the code below.
+Please note the data were preprocessed with the downloaded files and topk=100000 (First k number from mined file) using the code below.
 
 ```
-mined_data_file = "data/conala-corpus/conala-mined.jsonl" # path to the downloaded mined file
+train_file = 'data/conala-corpus/conala-train.json'
+test_file = 'data/conala-corpus/conala-test.json'
+mined_data_file = 'data/conala-corpus/conala-mined.jsonl' # path to the downloaded mined file
 topk = 100000 # number of pretraining data to be preprocessed
 !python datasets/conala/dataset.py --pretrain=$mined_data_file --topk=$topk
 ```
@@ -133,7 +135,7 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 ! bash scripts/GRU/finetune.sh 100000
 ```
 
-### tranX_Transformer
+### tranX_attentional_encoder
 
 ```
 # Transformer
@@ -144,7 +146,7 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 ! bash scripts/transformer/finetune.sh 100000
 ```
 
-## 5 Model Testing
+## 5 Model Testing with the test set provided in CoNaLa dataset.
 
 ### tranX_LSTM (Baseline)
 ```
@@ -158,7 +160,7 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 # test with mined_num = 100000
 !bash scripts/GRU/test.sh 100000
 ```
-### tranX_Transformer
+### tranX_attentional_encoder
 ```
 # Transformer
 # test with mined_num = 100000
@@ -184,17 +186,4 @@ TranX is described/used in the following two papers:
     url = {https://arxiv.org/abs/1806.07832v1},
     year = {2018}
 }
-```
-
-## Thanks
-
-We are also grateful to the following papers that inspire this work :P
-```
-Abstract Syntax Networks for Code Generation and Semantic Parsing.
-Maxim Rabinovich, Mitchell Stern, Dan Klein.
-in Proceedings of the Annual Meeting of the Association for Computational Linguistics, 2017
-
-The Zephyr Abstract Syntax Description Language.
-Daniel C. Wang, Andrew W. Appel, Jeff L. Korn, and Christopher S. Serra.
-in Proceedings of the Conference on Domain-Specific Languages, 1997
 ```
