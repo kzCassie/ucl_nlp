@@ -31,7 +31,7 @@ For TRANX_GRU, we replace the encoder part with a GRU network. In graphical repr
 
 For TRANX_attentional_encoder, we change the encoder part with an attentional encoder, which is also the encoder of the transformer. The corresponding changed part is shown below.
 
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/Attentional_encoder.png)
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/attentional_encoder.png)
 
 ## 2 Project Setup
 This project can be either run on colab or the local machine. Please find the project set up in the corresponding subsection below. To run it without CUDA, please simply remove the "--cuda" flag from the command line argument in all shell scripts under the file named "scripts".
