@@ -7,20 +7,31 @@ However, existing code generation models suffer from various problems. For examp
 To solve these problems, this project explores potential solutions by using TRANX as the baseline, experimenting and modifying the encoder with different networks like Gated Recurrent Units (GRUs) and attentional encoder. In particular, TRANX_GRU beats the TRANX baseline results in terms of the exact match on the CoNaLa dataset. TranX_attentional_encoder achieves similar results as TRANX in terms of Corpus BLUE score while giving lower computational complexity per layer. (hopefully) both candidate models beat the current state-of-the-art tranX model on conala dataset.
 
 
-| Model                     | Results      | Metric             |
-| ------------------------- | ------------ | ------------------ |
-| tranX_LSTM                | ?            | Corpus BLEU        |
-| tranX_GRU                 | ?            | Corpus BLEU        |
-| tranX_attentional_encoder | ?            | Corpus BLEU        |
+| Model                     | Corpus BLEU  | Exact Match  |
+| ------------------------- | ------------ | ------------ |
+| tranX_LSTM                | 0.301        | 0.017        |
+| tranX_GRU                 | 0.286        | 0.030        |
+| tranX_attentional_encoder | ?            |              |
 
 ## 1 System Architecture
 
-##########insert pic##########
+TRANX is a seq-to-action model, in which the input is the natural language utterances that described the task and the output is a series of actions corresponding to some Python source code that completes the task. Please find the workflow of TRANX below.
 
-Figure 1 and 2 gives brief overview of the system for tranX_GRU and tranX_Transformer respectively.
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/workflow%20of%20TRANX.png)
 
+TRANX employs an encoder-decoder structure to score AST by measuring the probability of a series of actions. TRANX uses a Bi-LSTM network for the encoder and a standard LSTM for the decoder. This project explores and replaces the encoder with two different network structures: Gated Recurrent Units (GRUs) and attentional encoder.
 
-![Sysmte Architecture](doc/system.png)
+Figure below gives brief overview of the partial system for the original TRANX model.
+
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/TRANX_Architecture.png)
+
+For TRANX_GRU, we replace the encoder part with a GRU network. In graphical representations, we change the LSTM encoder (highlighted by the dotted squared) in the TRANX architecture above with a GRU network as shown in the figure below.
+
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/GRU_encoder.png)
+
+For TRANX_attentional_encoder, we change the encoder part with an attentional encoder, which is also the encoder of the transformer. The corresponding changed part is shown below.
+
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/Attentional_encoder.png)
 
 ## 2 Project Setup
 This project can be either run on colab or the local machine. Please find the project set up in the corresponding subsection below. To run it without CUDA, please simply remove the "--cuda" flag from the command line argument in all shell scripts under the file named "scripts".
@@ -110,7 +121,7 @@ train_set = Dataset.from_bin_file("data/conala/train.gold.full.bin")
 for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_example]):
     print(f'Source:{src} \nTarget:{tgt} \n')
 ```
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/nlp.jpg)
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/pre-processed_data.jpg)
 
 ## 4 Model Training & Fine-tuning
 
