@@ -135,7 +135,7 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 # pretrain with mined_num = 100000
 ！bash scripts/tranX/pretrain.sh 100000
 
-# fine-tune with mined_num = 100000
+# fine-tune with the gold set
 ! bash scripts/tranX/finetune.sh 100000
 ```
 
@@ -146,18 +146,18 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 # pretrain with mined_num = 100000
 ！bash scripts/GRU/pretrain.sh 100000
 
-# fine-tune with mined_num = 100000
+# fine-tune with the gold set
 ! bash scripts/GRU/finetune.sh 100000
 ```
 
 ### tranX_attentional_encoder
 
 ```
-# Transformer
+# Attentional encoder
 # pretrain with mined_num = 100000
 ！bash scripts/transformer/pretrain.sh 100000
 
-# fine-tune with mined_num = 100000
+# fine-tune with the gold set
 ! bash scripts/transformer/finetune.sh 100000
 ```
 
@@ -166,19 +166,17 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 ### tranX_LSTM (Baseline)
 ```
 # tranX baseline model
-# test with mined_num = 100000
-!bash scripts/tranX/test.sh 100000
+!bash scripts/tranX/test.sh best_pretrained_models/finetune.conala.default_parser.hidden256.embed128.action128.field64.type64.dr0.3.lr0.001.lr_de0.5.lr_da15.beam15.vocab.src_freq3.code_freq3.mined_100000.bin.mined_100000.bin.glorot.par_state.seed0.bin 100000 default_parser
 ```
+
 ### tranX_GRU
 ```
 # GRU model
-# test with mined_num = 100000
-!bash scripts/GRU/test.sh 100000
+!bash scripts/tranX/test.sh best_pretrained_models/finetune.conala.gru_parser.hidden256.embed128.action128.field64.type64.dr0.3.lr0.001.lr_de0.5.lr_da15.beam15.vocab.src_freq3.code_freq3.mined_100000.bin.mined_100000.bin.glorot.par_state.seed0.bin 100000 gru_parser
 ```
 ### tranX_attentional_encoder
 ```
 # Transformer
-# test with mined_num = 100000
 !bash scripts/transformer/test.sh 100000
 ```
 
