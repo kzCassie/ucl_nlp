@@ -111,7 +111,7 @@ topk = 100000 # number of pretraining data to be preprocessed
 !python datasets/conala/dataset.py --pretrain=$mined_data_file --topk=$topk
 ```
 
-After data pre-processing, the NL intents were transformed into lists of tokens, while the Python source code snippets become series of actions / through the AST parsing process as explained before. Please see the example of the preprocessed data below.
+After data pre-processing, the NL intents were transformed into lists of tokens, while the Python source code snippets become series of actions through the AST parsing process as explained before. Please see the example of the preprocessed data below.
 ```
 # example of pre-processed data.
 from components.dataset import Dataset
@@ -122,7 +122,7 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 ```
 ![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/pre-processed_data.jpg)
 
-We preprocess the json files into several bin files and save them to the folder named `data/canola/${topk}`. These preprocessed files are then used in the next section for training, fine-tuning and testing. In particular, we held out 200 examples from the 2379 manually-curated training data as the validation set. We first trained the model from scratch / with the 100k un-curated examples along with the 200 validation examples. Next, we fine-tuned the obtained model using the 2179 remaining training data and evaluated the same 200 evaluation examples to form the final model. In the end, we applied the fine-tuned model on the 500 test set on which the results are reported.
+We preprocess the json files into several bin files and save them to the folder named `data/canola/${topk}`. These preprocessed files are then used in the next section for training, fine-tuning and testing. In particular, we held out 200 examples from the 2379 manually-curated training data as the validation set. We first trained the model from scratch with the 100k un-curated examples along with the 200 validation examples. Next, we fine-tuned the obtained model using the 2179 remaining training data and evaluated the same 200 evaluation examples to form the final model. In the end, we applied the fine-tuned model on the 500 test set on which the results are reported.
 
 ## 4 Model Training & Fine-tuning
 
