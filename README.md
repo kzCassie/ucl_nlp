@@ -178,6 +178,8 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 ```
 # Transformer
 !bash scripts/transformer/test.sh 100000
+!bash scripts/tranX/test.sh best_pretrained_models/finetune.conala.transformer_enc_parser.enc_nhead2.enc_nlayer1.hidden256.embed128.action128.field64.type64.dr0.3.lr0.001.lr_de0.5.lr_da15.beam15.vocab.src_freq3.code_freq3.mined_100000.bin.mined_100000.bin.glorot.par_state.seed0 100000 transformer_enc_parser
+
 ```
 
 ## Reference
