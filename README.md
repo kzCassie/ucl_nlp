@@ -89,7 +89,9 @@ pip install -r requirements.txt
 ```
 ## 3 Data Loading & Data Preprocessing
 
-Run the following shell script to get the Conala json file from http://www.phontron.com/download/conala-corpus-v1.1.zip, and download the preprocessed Conala zipfile from GoogleDrive.
+Run the following shell script to get the Conala json file from http://www.phontron.com/download/conala-corpus-v1.1.zip, and download the preprocessed Conala zipfile from GoogleDrive. 
+
+The CoNaLa dataset was originally released by CMU. This dataset contains mined corpus of natural language intents and Python code snippets from Stack Overflow. The original data is in JSON format and comes in 3 parts: first, 2379 manually-curated training examples, second 500 human-curated test examples and thirdly 600k automatically-mined examples.
 
 ```
 # Download original Conala json dataset
@@ -99,7 +101,7 @@ Run the following shell script to get the Conala json file from http://www.phont
 
 ###Clarification on Data Preprocessing
 
-Please note the data were preprocessed with the downloaded files and topk=100000 (First k number from mined file) using the code below.
+Please note the data were preprocessed with the downloaded files and topk=100000 (First k number from mined file) using the code below. This means we use all of the human-curated data, but only 100k automatically-mined examples for training.
 
 ```
 train_file = 'data/conala-corpus/conala-train.json'
@@ -108,15 +110,8 @@ mined_data_file = 'data/conala-corpus/conala-mined.jsonl' # path to the download
 topk = 100000 # number of pretraining data to be preprocessed
 !python datasets/conala/dataset.py --pretrain=$mined_data_file --topk=$topk
 ```
-We preprocess the json files into several bin files and save them to the folder named `data/canola/${topk}`. These preprocessed files are then used in the next section for training, fine-tuning and testing.
 
-In particular, we preprocess the mined json file (conala-mined.jsonl) and save the results into *mined_100000.bin*  (it contains 100k automatically-mined examples), which is then used for the model pre-training. During the training, we use the 200 pre-processed evaluation examples for validation. 
-
-Next, we preprocess the 2379 human_curated training data from the downloaded train file (*conala-train.json*), these preprocessed files are stored in *train.gold.full.bin*. We then fine-tune the pre-trained model with these preprocessed 2379 gold training data and evaluated on the same 200 evaluation examples to form the final model.
-
-In the end, we preprocess the test json file *conala-test.json* to *test.bin* and simply apply the final model on the 500 manually curated data for model testing.
-
-In total, we use around 100k, 2379 and 500 instances for training, fine-tuning and testing respectively. Please see the example of the preprocessed data below.
+After data pre-processing, the NL intents were transformed into lists of tokens, while the Python source code snippets become series of actions / through the AST parsing process as explained before. Please see the example of the preprocessed data below.
 ```
 # example of pre-processed data.
 from components.dataset import Dataset
@@ -126,6 +121,8 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
     print(f'Source:{src} \nTarget:{tgt} \n')
 ```
 ![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/pre-processed_data.jpg)
+
+We preprocess the json files into several bin files and save them to the folder named `data/canola/${topk}`. These preprocessed files are then used in the next section for training, fine-tuning and testing. In particular, we held out 200 examples from the 2379 manually-curated training data as the validation set. We first trained the model from scratch / with the 100k un-curated examples along with the 200 validation examples. Next, we fine-tuned the obtained model using the 2179 remaining training data and evaluated the same 200 evaluation examples to form the final model. In the end, we applied the fine-tuned model on the 500 test set on which the results are reported.
 
 ## 4 Model Training & Fine-tuning
 
