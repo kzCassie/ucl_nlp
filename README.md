@@ -7,11 +7,11 @@ However, existing code generation models suffer from various problems. For examp
 To solve these problems, this project explores potential solutions by using TRANX as the baseline, experimenting and modifying the encoder with different networks like Gated Recurrent Units (GRUs) and attentional encoder. In particular, TRANX_GRU beats the TRANX baseline results in terms of the exact match on the CoNaLa dataset. TranX_attentional_encoder achieves similar results as TRANX in terms of Corpus BLUE score while giving lower computational complexity per layer. (hopefully) both candidate models beat the current state-of-the-art tranX model on conala dataset.
 
 
-| Model                     | Corpus BLEU  | Exact Match  |
-| ------------------------- | ------------ | ------------ |
-| tranX_LSTM                | 0.301        | 0.017        |
-| tranX_GRU                 | 0.286        | 0.030        |
-| tranX_attentional_encoder | ?            |              |
+| Model                     | Corpus BLEU  | Exact Match  |Training Time/Epoch  |
+| ------------------------- | ------------ | ------------ |---------------------|
+| tranX_LSTM                | 0.301        | 0.017        | 570s                |
+| tranX_GRU                 | 0.286        | 0.030        | 400s                |
+| tranX_attentional_encoder | 0.282        | 0.024        | 375s                |
 
 ## 1 System Architecture
 
@@ -129,6 +129,17 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 
 ## 4 Model Training & Fine-tuning
 
+Hint: It takes several hours to train and fine-tune the model. The best-pre-trained models can be downloaded using the following shell script, **if you just want to test the model to see the model performance, please go to section 5.**
+
+### Download best pretrained models from GoogleDrive
+
+We have uploaded the best-pretrained models to an open-accessed GoogleDrive file, please kindly use the shell script *pull_best_models.sh* to download these models.
+
+```
+# Download best pretrained models zipfile from GoogleDrive
+!bash pull_best_models.sh
+```
+
 ### tranX_LSTM (Baseline)
 ```
 # tranX baseline model
@@ -177,8 +188,7 @@ for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_ex
 ### tranX_attentional_encoder
 ```
 # Transformer
-!bash scripts/transformer/test.sh 100000
-!bash scripts/tranX/test.sh best_pretrained_models/finetune.conala.transformer_enc_parser.enc_nhead2.enc_nlayer1.hidden256.embed128.action128.field64.type64.dr0.3.lr0.001.lr_de0.5.lr_da15.beam15.vocab.src_freq3.code_freq3.mined_100000.bin.mined_100000.bin.glorot.par_state.seed0 100000 transformer_enc_parser
+!bash scripts/transformer/test.sh best_pretrained_models/finetune.conala.transformer_enc_parser.enc_nhead2.enc_nlayer1.hidden256.embed128.action128.field64.type64.dr0.3.lr0.001.lr_de0.5.lr_da15.beam15.vocab.src_freq3.code_freq3.mined_100000.bin.mined_100000.bin.glorot.par_state.seed0.bin 100000 transformer_enc_parser
 
 ```
 
