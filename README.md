@@ -17,21 +17,21 @@ To solve these problems, this project explores potential solutions by using TRAN
 
 TRANX is a seq-to-action model, in which the input is the natural language utterances that described the task and the output is a series of actions corresponding to some Python source code that completes the task. Please find the workflow of TRANX below.
 
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/workflow%20of%20TRANX.png)
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/Work_flow.png)
 
 TRANX employs an encoder-decoder structure to score AST by measuring the probability of a series of actions. TRANX uses a Bi-LSTM network for the encoder and a standard LSTM for the decoder. This project explores and replaces the encoder with two different network structures: Gated Recurrent Units (GRUs) and attentional encoder.
 
 Figure below gives brief overview of the partial system for the original TRANX model.
 
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/TRANX_Architecture.png)
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/TRANX.jpg)
 
 For TRANX_GRU, we replace the encoder part with a GRU network. In graphical representations, we change the LSTM encoder (highlighted by the dotted squared) in the TRANX architecture above with a GRU network as shown in the figure below.
 
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/GRU_encoder.png)
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/GRU.png)
 
 For TRANX_attentional_encoder, we change the encoder part with an attentional encoder, which is also the encoder of the transformer. The corresponding changed part is shown below.
 
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/attentional_encoder.png)
+![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/Transformer_enc.png)
 
 ## 2 Project Setup
 This project can be either run on colab or the local machine. Please find the project set up in the corresponding subsection below. To run it without CUDA, please simply remove the "--cuda" flag from the command line argument in all shell scripts under the file named "scripts".
