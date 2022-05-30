@@ -18,21 +18,21 @@ To solve these problems, this project explores potential solutions by using TRAN
 
 TRANX is a seq-to-action model, in which the input is the natural language utterances that described the task and the output is a series of actions corresponding to some Python source code that completes the task. Please find the workflow of TRANX below.
 
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/Work_flow.png)
+![IMAGE](https://raw.githubusercontent.com/kzCassie/ucl_nlp/master/IMAGE/Work_flow.png)
 
 TRANX employs an encoder-decoder structure to score AST by measuring the probability of a series of actions. TRANX uses a Bi-LSTM network for the encoder and a standard LSTM for the decoder. This project explores and replaces the encoder with two different network structures: Gated Recurrent Units (GRUs) and attentional encoder.
 
 Figure below gives brief overview of the partial system for the original TRANX model.
 
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/TRANX.jpg)
+![IMAGE](https://raw.githubusercontent.com/kzCassie/ucl_nlp/master/IMAGE/TRANX.jpg)
 
 For TRANX_GRU, we replace the encoder part with a GRU network. In graphical representations, we change the LSTM encoder (highlighted by the dotted squared) in the TRANX architecture above with a GRU network as shown in the figure below.
 
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/GRU.png)
+![IMAGE](https://raw.githubusercontent.com/kzCassie/ucl_nlp/master/IMAGE/GRU.png)
 
 For TRANX_attentional_encoder, we change the encoder part with an attentional encoder, which is also the encoder of the transformer. The corresponding changed part is shown below.
 
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/Transformer_enc.png)
+![IMAGE](https://raw.githubusercontent.com/kzCassie/ucl_nlp/master/IMAGE/Transformer_enc.png)
 
 ## 2 Project Setup
 This project can be either run on colab or the local machine. Please find the project set up in the corresponding subsection below. To run it without CUDA, please simply remove the "--cuda" flag from the command line argument in all shell scripts under the file named "scripts".
@@ -121,7 +121,7 @@ train_set = Dataset.from_bin_file("data/conala/train.gold.full.bin")
 for src, tgt in zip(train_set.all_source[:n_example],train_set.all_targets[:n_example]):
     print(f'Source:{src} \nTarget:{tgt} \n')
 ```
-![IMAGE](https://github.com/kzCassie/ucl_nlp/blob/master/IMAGE/pre-processed_data.jpg)
+![IMAGE](https://raw.githubusercontent.com/kzCassie/ucl_nlp/master/IMAGE/pre-processed_data.jpg)
 
 We preprocess the json files into several bin files and save them to the folder named `data/canola/${topk}`. These preprocessed files are then used in the next section for training, fine-tuning and testing. In particular, we held out 200 examples from the 2379 manually-curated training data as the validation set. We first trained the model from scratch with the 100k un-curated examples along with the 200 validation examples. Next, we fine-tuned the obtained model using the 2179 remaining training data and evaluated the same 200 evaluation examples to form the final model. In the end, we applied the fine-tuned model on the 500 test set on which the results are reported.
 
